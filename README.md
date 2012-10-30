@@ -2,6 +2,9 @@
 
 Hammertime is a simple time-tracker.
 
+Please notice that hammertime is more a pet project than a real one. Its main
+goal is to allow me to write some "Real World" haskell.
+
 ## Install
 
 With cabal
