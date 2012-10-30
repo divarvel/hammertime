@@ -79,9 +79,9 @@ getDiffTime (Span _ begin end) = diffUTCTime end begin
 getTotalTime :: [Span] -> NominalDiffTime
 getTotalTime spans = sum . map getDiffTime $ spans
 
-getProjectTime p = getTotalTime . filterByActivity (\a -> p == project a)
+getProjectTime p = getTotalTime . filterByActivity ((==p) . project)
 
-getActivityTime p = getTotalTime . filterByActivity (\a -> p == name a)
+getActivityTime p = getTotalTime . filterByActivity ((p==) . name)
 
 filterByActivity :: (Activity -> Bool) -> [Span] -> [Span]
 filterByActivity p spans = filter p' $ spans where
