@@ -17,4 +17,4 @@ cabal-version:       >=1.8
 executable hammertime
   main-is:             hammertime.hs
   -- other-modules:       
-  build-depends: base, time
+  build-depends: base, text, time

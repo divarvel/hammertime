@@ -1,13 +1,18 @@
 import System.IO
+import qualified Data.Text as T
 import Data.Time
 import Data.Time.Clock.POSIX
 import Data.List
 import Data.Maybe
 import System.Environment
 
-data Activity = Activity { project :: String
-                         , name :: String
-                         , tags :: [String]
+type Project = T.Text
+type Name = T.Text
+type Tag = T.Text
+
+data Activity = Activity { project :: Project
+                         , name :: Name
+                         , tags :: [Tag]
                          } deriving (Eq, Read, Show)
 data Event = Start Activity UTCTime | Stop UTCTime deriving (Eq, Read, Show)
 data Span = Span { activity :: Activity
@@ -18,15 +23,15 @@ data Span = Span { activity :: Activity
 filename = "hammertime.txt"
 
 useArgs :: [String] -> IO ()
-useArgs ("show":q:_) = showSavedEvents q
-useArgs ("start":p:t:ts) = appendStart p t ts
+useArgs ("show":q:_) = showSavedEvents $ T.pack q
+useArgs ("start":p:t:ts) = appendStart (T.pack p) (T.pack t) (map T.pack ts)
 useArgs ("stop":_) = appendStop
 useArgs _ = putStrLn "Not enough arguments"
 
 createStart :: Activity -> IO Event
 createStart a = fmap (Start a) getCurrentTime
 
-appendStart :: String -> String -> [String] -> IO ()
+appendStart :: Project -> Name -> [Tag] -> IO ()
 appendStart p n ts = createStart (Activity p n ts) >>= appendEvent
 
 appendStop :: IO ()
@@ -37,15 +42,15 @@ appendEvent :: Event -> IO ()
 appendEvent e = do
     appendFile filename $ (show e ++ "\n")
 
-showSavedEvents :: String -> IO ()
-showSavedEvents q = do
+showSavedEvents :: T.Text -> IO ()
+showSavedEvents _ = do
     d <- getCurrentTime
     cs <- readFile filename
-    mapM_ (putStrLn . show) $ readEvents cs
+    mapM_ (putStrLn . show) $ readEvents . T.pack $ cs
     return ()
 
 readSavedEvents :: IO [Event]
-readSavedEvents = fmap readEvents $ readFile filename
+readSavedEvents = fmap (readEvents . T.pack) $ readFile filename
 
 removeFirstStop :: [Event] -> [Event]
 removeFirstStop ((Stop _):t) = t
@@ -87,10 +92,11 @@ filterByActivity :: (Activity -> Bool) -> [Span] -> [Span]
 filterByActivity p spans = filter p' $ spans where
     p' = p . activity
 
-readEvents :: String -> [Event]
-readEvents s = catMaybes $ map readEvent (lines s)
+readEvents :: T.Text -> [Event]
+readEvents s = catMaybes $ map readEvent (T.lines s)
 
-readEvent line = listToMaybe . (map fst) . (take 1) $ reads line
+readEvent :: T.Text -> Maybe Event
+readEvent line = listToMaybe . (map fst) . (take 1) . reads . T.unpack $ line
 
 
 
