@@ -1,16 +1,43 @@
+{-# LANGUAGE DeriveDataTypeable #-}
 
-module Hammertime where
+module Main where
 
-import System.Environment
 import qualified Data.Text as T
+import Data.Version (showVersion)
+import System.Console.CmdArgs
 
+import Paths_hammertime
 import Hammertime.Core
+import Hammertime.Types
 
-useArgs :: [String] -> IO ()
-useArgs ("show":q:_) = showSavedEvents $ T.pack q
-useArgs ("start":p:t:ts) = appendStart (T.pack p) (T.pack t) (map T.pack ts)
-useArgs ("stop":_) = appendStop
-useArgs _ = putStrLn "Not enough arguments"
+data Action = Start_ { project_ :: String
+                          , name_ :: String
+                          , tags_ :: [String]
+                          }
+            | Stop_
+            | Show_  { query :: String }
+            deriving (Show, Data, Typeable)
 
 
-main = getArgs >>= useArgs
+getAction :: IO (Action)
+getAction = cmdArgs $ (modes [showAction &= auto, startAction, stopAction]) &=
+                     help "Hammertime: a simple time tracker" &=
+                     summary ("Hammertime v" ++ showVersion version) &=
+                     details ["More info at https://github.com/divarvel/hammertime"]
+    where
+        showAction = Show_ { query = def &= help "A filter query" &= typ "QUERY" } &= help "Show saved events"
+
+        startAction = Start_ { project_ = def &= typ "PROJECT" &= argPos 0
+                             , name_ = def &= typ "NAME" &= argPos 1
+                             , tags_ = def &= typ "TAG" &= args
+                             } &= help "Start a new activity"
+
+        stopAction = Stop_ &= help "Stop current activity"
+
+processAction :: Action -> IO()
+processAction (Start_ p n ts) = appendStart (T.pack p) (T.pack n) (map T.pack ts)
+processAction (Show_ q) = showSavedEvents $ T.pack q
+processAction (Stop_) = appendStop
+
+
+main = getAction >>= processAction
