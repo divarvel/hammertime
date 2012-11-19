@@ -1,13 +1,18 @@
 import System.IO
+import qualified Data.Text as T
 import Data.Time
 import Data.Time.Clock.POSIX
 import Data.List
 import Data.Maybe
 import System.Environment
 
-data Activity = Activity { project :: String
-                         , name :: String
-                         , tags :: [String]
+type Project = T.Text
+type Name = T.Text
+type Tag = T.Text
+
+data Activity = Activity { project :: Project
+                         , name :: Name
+                         , tags :: [Tag]
                          } deriving (Eq, Read, Show)
 data Event = Start Activity UTCTime | Stop UTCTime deriving (Eq, Read, Show)
 data Span = Span { activity :: Activity
@@ -18,15 +23,15 @@ data Span = Span { activity :: Activity
 filename = "hammertime.txt"
 
 useArgs :: [String] -> IO ()
-useArgs ("show":q:_) = showSavedEvents q
-useArgs ("start":p:t:ts) = appendStart p t ts
+useArgs ("show":q:_) = showSavedEvents $ T.pack q
+useArgs ("start":p:t:ts) = appendStart (T.pack p) (T.pack t) (map T.pack ts)
 useArgs ("stop":_) = appendStop
 useArgs _ = putStrLn "Not enough arguments"
 
 createStart :: Activity -> IO Event
 createStart a = fmap (Start a) getCurrentTime
 
-appendStart :: String -> String -> [String] -> IO ()
+appendStart :: Project -> Name -> [Tag] -> IO ()
 appendStart p n ts = createStart (Activity p n ts) >>= appendEvent
 
 appendStop :: IO ()
@@ -36,15 +41,15 @@ appendStop = fmap Stop getCurrentTime >>= appendEvent
 appendEvent :: Event -> IO ()
 appendEvent e = appendFile filename (show e ++ "\n")
 
-showSavedEvents :: String -> IO ()
-showSavedEvents q = do
+showSavedEvents :: T.Text -> IO ()
+showSavedEvents _ = do
     d <- getCurrentTime
     cs <- readFile filename
-    mapM_ print $ readEvents cs
+    mapM_ print $ readEvents . T.pack $ cs
     return ()
 
 readSavedEvents :: IO [Event]
-readSavedEvents = fmap readEvents $ readFile filename
+readSavedEvents = fmap (readEvents . T.pack) $ readFile filename
 
 removeFirstStop :: [Event] -> [Event]
 removeFirstStop (Stop _:t) = t
@@ -78,18 +83,19 @@ getDiffTime (Span _ begin end) = diffUTCTime end begin
 getTotalTime :: [Span] -> NominalDiffTime
 getTotalTime spans = sum . map getDiffTime $ spans
 
-getProjectTime p = getTotalTime . filterByActivity (\a -> p == project a)
+getProjectTime p = getTotalTime . filterByActivity ((==p) . project)
 
-getActivityTime p = getTotalTime . filterByActivity (\a -> p == name a)
+getActivityTime p = getTotalTime . filterByActivity ((p==) . name)
 
 filterByActivity :: (Activity -> Bool) -> [Span] -> [Span]
 filterByActivity p = filter p' where
     p' = p . activity
 
-readEvents :: String -> [Event]
-readEvents s = mapMaybe readEvent (lines s)
+readEvents :: T.Text -> [Event]
+readEvents s = mapMaybe readEvent (T.lines s)
 
-readEvent line = listToMaybe . map fst . take 1 $ reads line
+readEvent :: T.Text -> Maybe Event
+readEvent line = listToMaybe . map fst . take 1 . reads . T.unpack $ line
 
 
 

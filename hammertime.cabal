@@ -18,4 +18,4 @@ executable hammertime
   main-is:             hammertime.hs
   hs-source-dirs:      src
   -- other-modules:       
-  build-depends: base ==4.2.*, time
+  build-depends: base, text, time
