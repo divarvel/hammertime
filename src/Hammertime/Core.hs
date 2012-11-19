@@ -1,5 +1,9 @@
 
-module Hammertime.Core where
+module Hammertime.Core (
+    appendStart
+  , appendStop
+  , showSavedEvents
+) where
 
 import System.IO
 import qualified Data.Text as T
