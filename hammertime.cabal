@@ -2,7 +2,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                hammertime
-version:             0.1.0.0
+version:             0.1.0.1
 synopsis:            Lightweight time tracker
 -- description:         
 license:             GPL-3
@@ -16,5 +16,6 @@ cabal-version:       >=1.8
 
 executable hammertime
   main-is:             hammertime.hs
+  hs-source-dirs:      src
   -- other-modules:       
-  build-depends: base, text, time
+  build-depends: base, text, time, cmdargs
