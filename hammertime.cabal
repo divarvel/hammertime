@@ -14,8 +14,26 @@ maintainer:          clement@delafargue.name
 build-type:          Simple
 cabal-version:       >=1.8
 
+Library
+  Hs-Source-Dirs: src
+  build-depends: base, text, time, cmdargs
+  Exposed-Modules:
+    Hammertime.Core
+    Hammertime.Types
+
 executable hammertime
   main-is:             hammertime.hs
   hs-source-dirs:      src
   -- other-modules:       
-  build-depends: base, text, time, cmdargs
+  build-depends: base, text, time, cmdargs, hammertime
+
+test-suite hunit
+  type: exitcode-stdio-1.0
+  main-is: hunit.hs
+  hs-source-dirs: tests
+  build-depends:
+    base,
+    hammertime,
+    HUnit >= 1.2,
+    test-framework       >= 0.6,
+    test-framework-hunit >= 0.2

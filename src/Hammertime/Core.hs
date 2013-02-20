@@ -2,6 +2,7 @@
 module Hammertime.Core (
     appendStart
   , appendStop
+  , readEvent
   , showSavedEvents
 ) where
 
