@@ -19,11 +19,11 @@ data Action = Start_ { project_ :: String
             deriving (Show, Data, Typeable)
 
 
-getAction :: IO (Action)
-getAction = cmdArgs $ (modes [showAction &= auto, startAction, stopAction]) &=
-                     help "Hammertime: a simple time tracker" &=
-                     summary ("Hammertime v" ++ showVersion version) &=
-                     details ["More info at https://github.com/divarvel/hammertime"]
+getAction :: IO Action
+getAction = cmdArgs $ modes [showAction &= auto, startAction, stopAction] &=
+                      help "Hammertime: a simple time tracker" &=
+                      summary ("Hammertime v" ++ showVersion version) &=
+                      details ["More info at https://github.com/divarvel/hammertime"]
     where
         showAction = Show_ { query = def &= help "A filter query" &= typ "QUERY" } &= help "Show saved events"
 
