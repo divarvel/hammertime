@@ -12,10 +12,11 @@ import Data.Time
 import Data.Time.Clock.POSIX
 import Data.List
 import Data.Maybe
+import System.Environment.XDG.BaseDir (getUserDataFile)
 
 import Hammertime.Types
 
-filename = "hammertime.txt"
+eventFile = getUserDataFile "hammertime" "events"
 
 
 createStart :: Activity -> IO Event
@@ -29,17 +30,22 @@ appendStop = fmap Stop getCurrentTime >>= appendEvent
 
 
 appendEvent :: Event -> IO ()
-appendEvent e = appendFile filename (show e ++ "\n")
+appendEvent e = do
+    filename <- eventFile
+    appendFile filename (show e ++ "\n")
 
 showSavedEvents :: T.Text -> IO ()
 showSavedEvents _ = do
+    filename <- eventFile
     d <- getCurrentTime
     cs <- readFile filename
     mapM_ print $ readEvents . T.pack $ cs
     return ()
 
 readSavedEvents :: IO [Event]
-readSavedEvents = fmap (readEvents . T.pack) $ readFile filename
+readSavedEvents = do
+    filename <- eventFile
+    fmap (readEvents . T.pack) $ readFile filename
 
 removeFirstStop :: [Event] -> [Event]
 removeFirstStop (Stop _:t) = t
