@@ -22,8 +22,7 @@ data Action = Start_ { project_ :: String
 getAction :: IO Action
 getAction = cmdArgs $ modes [showAction &= auto, startAction, stopAction] &=
                       help "Hammertime: a simple time tracker" &=
-                      summary ("Hammertime v" ++ showVersion version) &=
-                      details ["More info at https://github.com/divarvel/hammertime"]
+                      summary ("Hammertime v" ++ showVersion version)
     where
         showAction = Show_ { query = def &= help "A filter query" &= typ "QUERY" } &= help "Show saved events"
 
