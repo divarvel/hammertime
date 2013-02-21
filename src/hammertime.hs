@@ -40,4 +40,4 @@ processAction (Show_ q) = showSavedEvents $ T.pack q
 processAction (Stop_) = appendStop
 
 
-main = getAction >>= processAction
+main = ensureDataDir >> getAction >>= processAction

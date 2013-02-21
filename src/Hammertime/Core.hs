@@ -2,6 +2,7 @@
 module Hammertime.Core (
     appendStart
   , appendStop
+  , ensureDataDir
   , readEvent
   , showSavedEvents
 ) where
@@ -12,11 +13,15 @@ import Data.Time
 import Data.Time.Clock.POSIX
 import Data.List
 import Data.Maybe
-import System.Environment.XDG.BaseDir (getUserDataFile)
+import System.Directory (createDirectoryIfMissing)
+import System.Environment.XDG.BaseDir (getUserDataDir, getUserDataFile)
 
 import Hammertime.Types
 
+dataDir = getUserDataDir "hammertime"
 eventFile = getUserDataFile "hammertime" "events"
+
+ensureDataDir = createDirectoryIfMissing False =<< dataDir
 
 
 createStart :: Activity -> IO Event
