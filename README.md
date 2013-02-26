@@ -1,4 +1,4 @@
-![https://travis-ci.org/divarvel/hammertime.png](https://travis-ci.org/divarvel/hammertime)
+[![Build status](https://travis-ci.org/divarvel/hammertime.png)](https://travis-ci.org/divarvel/hammertime)
 
 #Hammertime
 
