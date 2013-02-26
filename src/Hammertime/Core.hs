@@ -62,7 +62,7 @@ removeFirstStop events = events
 removeLastStart :: [Event] -> [Event]
 removeLastStart events = case reverse events of
     (Start _ _:t) -> reverse t
-    events -> reverse events
+    es -> reverse es
 
 insertStops :: [Event] -> [Event]
 insertStops cs = reverse $ foldl step [] cs where
@@ -76,13 +76,13 @@ insertStops cs = reverse $ foldl step [] cs where
 
 computeTimes :: [Event] -> [Span]
 computeTimes cs = mapMaybe getDiff (buildIntervals cs) where
-    getDiff (Start a begin, Stop end) = Just $ Span a begin end
+    getDiff (Start a b, Stop e) = Just $ Span a b e
     getDiff _ = Nothing
     buildIntervals (x:y:t) = (x,y):buildIntervals t
     buildIntervals _ = []
 
 getDiffTime :: Span -> NominalDiffTime
-getDiffTime (Span _ begin end) = diffUTCTime end begin
+getDiffTime (Span _ b e) = diffUTCTime e b
 
 getTotalTime :: [Span] -> NominalDiffTime
 getTotalTime spans = sum . map getDiffTime $ spans
