@@ -3,6 +3,8 @@ module Hammertime.Core (
     appendStart
   , appendStop
   , ensureDataDir
+  , insertStops
+  , computeTimes
   , readEvent
   , showSavedEvents
 ) where
