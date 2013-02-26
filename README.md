@@ -1,3 +1,5 @@
+[![Build status](https://travis-ci.org/divarvel/hammertime.png)](https://travis-ci.org/divarvel/hammertime)
+
 #Hammertime
 
 Hammertime is a simple time-tracker.
@@ -31,7 +33,7 @@ Visualize tasks
 
 ## Roadmap
 
-* Tests
+* More Tests
 * Create text reports
 * Create SVG reports
 * Use more robust data structures

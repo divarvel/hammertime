@@ -16,7 +16,14 @@ cabal-version:       >=1.8
 
 Library
   Hs-Source-Dirs: src
-  build-depends: base, text, time, cmdargs, xdg-basedir, directory, mtl
+  build-depends:
+    base,
+    text,
+    time,
+    cmdargs,
+    xdg-basedir,
+    directory,
+    mtl
   Exposed-Modules:
     Hammertime.Core
     Hammertime.Types
@@ -25,7 +32,15 @@ executable hammertime
   main-is:             hammertime.hs
   hs-source-dirs:      src
   -- other-modules:       
-  build-depends: base, text, time, cmdargs, xdg-basedir, directory, mtl, hammertime
+  build-depends:
+    base,
+    text,
+    time,
+    cmdargs,
+    xdg-basedir,
+    directory,
+    mtl,
+    hammertime
 
 test-suite hunit
   type: exitcode-stdio-1.0
