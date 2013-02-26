@@ -19,4 +19,4 @@ data Event = Start Activity UTCTime | Stop UTCTime deriving (Eq, Read, Show)
 data Span = Span { activity :: Activity
                  , begin :: UTCTime
                  , end :: UTCTime
-                 }
+                 } deriving (Show)

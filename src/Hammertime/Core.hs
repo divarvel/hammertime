@@ -7,6 +7,7 @@ module Hammertime.Core (
   , showSavedEvents
 ) where
 
+import Control.Monad.Writer
 import System.IO
 import qualified Data.Text as T
 import Data.Time
@@ -70,13 +71,14 @@ insertStops cs = reverse $ foldl step [] cs where
         (Stop _:_) -> acc -- Can's stop a task twice, discard the last stop
         _ -> e:acc
 
-
 computeTimes :: [Event] -> [Span]
-computeTimes cs = mapMaybe getDiff (buildIntervals cs) where
-    getDiff (Start a begin, Stop end) = Just $ Span a begin end
-    getDiff _ = Nothing
-    buildIntervals (x:y:t) = (x,y):buildIntervals t
-    buildIntervals _ = []
+computeTimes cs = execWriter $ appendSpan cs Nothing
+  where
+    appendSpan [] _ = return ()
+    appendSpan ((start@(Start _ t)):es) (Just (Start a s)) = tell [Span a s t] >> appendSpan es (Just start)
+    appendSpan (Stop t:es) (Just (Start a s)) = tell [Span a s t] >> appendSpan es Nothing
+    appendSpan ((start@(Start _ _)):es) Nothing = appendSpan es (Just start)
+    appendSpan (Stop _:es) Nothing = appendSpan es Nothing
 
 getDiffTime :: Span -> NominalDiffTime
 getDiffTime (Span _ begin end) = diffUTCTime end begin
