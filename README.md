@@ -1,3 +1,5 @@
+![https://travis-ci.org/divarvel/hammertime.png](https://travis-ci.org/divarvel/hammertime)
+
 #Hammertime
 
 Hammertime is a simple time-tracker.
