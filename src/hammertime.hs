@@ -7,8 +7,7 @@ import Data.Version (showVersion)
 import System.Console.CmdArgs
 
 import Paths_hammertime
-import Hammertime.Core
-import Hammertime.Types
+import Hammertime.Core (appendStart, appendStop, ensureDataDir, showSavedEvents)
 
 data Action = Start_ { project_ :: String
                           , name_ :: String
@@ -39,4 +38,5 @@ processAction (Show_ q) = showSavedEvents $ T.pack q
 processAction (Stop_) = appendStop
 
 
+main :: IO ()
 main = ensureDataDir >> getAction >>= processAction
