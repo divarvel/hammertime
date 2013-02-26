@@ -31,7 +31,7 @@ Visualize tasks
 
 ## Roadmap
 
-* Tests
+* More Tests
 * Create text reports
 * Create SVG reports
 * Use more robust data structures
