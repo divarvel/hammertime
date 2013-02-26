@@ -111,16 +111,16 @@ stop4 = Stop t5
 test_compute_explicit_stops =
         spans @=? [(Span a1 t1 t2), (Span a2 t2 t3), (Span a3 t3 t4), (Span a4 t4 t5)]
     where
-        spans = (computeTimes . insertStops) [ start1, stop1
-                                           , start2, stop2
-                                           , start3, stop3
-                                           , start4, stop4
-                                           ]
+        spans = (computeTimes ) [ start1, stop1
+                                , start2, stop2
+                                , start3, stop3
+                                , start4, stop4
+                                ]
 test_compute_implicit_stops =
         spans @=? [(Span a1 t1 t2), (Span a2 t2 t3), (Span a3 t3 t4), (Span a4 t4 t5)]
     where
-        spans = (computeTimes . insertStops) [ start1
-                                           , start2
-                                           , start3
-                                           , start4, stop4
-                                           ]
+        spans = (computeTimes ) [ start1
+                                , start2
+                                , start3
+                                , start4, stop4
+                                ]
