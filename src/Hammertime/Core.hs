@@ -20,9 +20,13 @@ import System.Environment.XDG.BaseDir (getUserDataDir, getUserDataFile)
 
 import Hammertime.Types
 
+dataDir :: IO FilePath
 dataDir = getUserDataDir "hammertime"
+
+eventFile :: IO FilePath
 eventFile = getUserDataFile "hammertime" "events"
 
+ensureDataDir :: IO ()
 ensureDataDir = createDirectoryIfMissing False =<< dataDir
 
 
