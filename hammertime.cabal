@@ -25,7 +25,7 @@ executable hammertime
   main-is:             hammertime.hs
   hs-source-dirs:      src
   -- other-modules:       
-  build-depends: base, text, time, cmdargs, xdg-basedir, directory, hammertime, mtl
+  build-depends: base, text, time, cmdargs, xdg-basedir, directory, mtl, hammertime
 
 test-suite hunit
   type: exitcode-stdio-1.0

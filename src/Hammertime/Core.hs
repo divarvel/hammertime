@@ -53,24 +53,6 @@ readSavedEvents = do
     filename <- eventFile
     fmap (readEvents . T.pack) $ readFile filename
 
-removeFirstStop :: [Event] -> [Event]
-removeFirstStop (Stop _:t) = t
-removeFirstStop events = events
-
-removeLastStart :: [Event] -> [Event]
-removeLastStart events = case reverse events of
-    (Start _ _:t) -> reverse t
-    events -> reverse events
-
-insertStops :: [Event] -> [Event]
-insertStops cs = reverse $ foldl step [] cs where
-    step acc e@(Start _ time) = case acc of
-        (Start _ _:_) -> e: Stop time :acc -- A task was running, stop it now
-        _ -> e:acc
-    step acc e@(Stop _) = case acc of
-        (Stop _:_) -> acc -- Can's stop a task twice, discard the last stop
-        _ -> e:acc
-
 computeTimes :: [Event] -> [Span]
 computeTimes cs = execWriter $ appendSpan cs Nothing
   where
