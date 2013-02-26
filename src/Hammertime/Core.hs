@@ -3,12 +3,12 @@ module Hammertime.Core (
     appendStart
   , appendStop
   , ensureDataDir
-  , insertStops
   , computeTimes
   , readEvent
   , showSavedEvents
 ) where
 
+import Control.Monad.Writer
 import System.IO
 import qualified Data.Text as T
 import Data.Time
@@ -54,31 +54,14 @@ readSavedEvents = do
     filename <- eventFile
     fmap (readEvents . T.pack) $ readFile filename
 
-removeFirstStop :: [Event] -> [Event]
-removeFirstStop (Stop _:t) = t
-removeFirstStop events = events
-
-removeLastStart :: [Event] -> [Event]
-removeLastStart events = case reverse events of
-    (Start _ _:t) -> reverse t
-    events -> reverse events
-
-insertStops :: [Event] -> [Event]
-insertStops cs = reverse $ foldl step [] cs where
-    step acc e@(Start _ time) = case acc of
-        (Start _ _:_) -> e: Stop time :acc -- A task was running, stop it now
-        _ -> e:acc
-    step acc e@(Stop _) = case acc of
-        (Stop _:_) -> acc -- Can's stop a task twice, discard the last stop
-        _ -> e:acc
-
-
 computeTimes :: [Event] -> [Span]
-computeTimes cs = mapMaybe getDiff (buildIntervals cs) where
-    getDiff (Start a begin, Stop end) = Just $ Span a begin end
-    getDiff _ = Nothing
-    buildIntervals (x:y:t) = (x,y):buildIntervals t
-    buildIntervals _ = []
+computeTimes cs = execWriter $ appendSpan cs Nothing
+  where
+    appendSpan [] _ = return ()
+    appendSpan ((start@(Start _ t)):es) (Just (Start a s)) = tell [Span a s t] >> appendSpan es (Just start)
+    appendSpan (Stop t:es) (Just (Start a s)) = tell [Span a s t] >> appendSpan es Nothing
+    appendSpan ((start@(Start _ _)):es) Nothing = appendSpan es (Just start)
+    appendSpan (Stop _:es) Nothing = appendSpan es Nothing
 
 getDiffTime :: Span -> NominalDiffTime
 getDiffTime (Span _ begin end) = diffUTCTime end begin

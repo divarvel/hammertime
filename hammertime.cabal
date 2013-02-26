@@ -22,7 +22,8 @@ Library
     time,
     cmdargs,
     xdg-basedir,
-    directory
+    directory,
+    mtl
   Exposed-Modules:
     Hammertime.Core
     Hammertime.Types
@@ -38,6 +39,7 @@ executable hammertime
     cmdargs,
     xdg-basedir,
     directory,
+    mtl,
     hammertime
 
 test-suite hunit
