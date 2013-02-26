@@ -9,11 +9,8 @@ module Hammertime.Core (
   , showSavedEvents
 ) where
 
-import System.IO
 import qualified Data.Text as T
-import Data.Time
-import Data.Time.Clock.POSIX
-import Data.List
+import Data.Time.Clock (diffUTCTime, getCurrentTime, NominalDiffTime)
 import Data.Maybe
 import System.Directory (createDirectoryIfMissing)
 import System.Environment.XDG.BaseDir (getUserDataDir, getUserDataFile)
