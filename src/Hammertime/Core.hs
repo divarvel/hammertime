@@ -64,8 +64,8 @@ computeTimes cs = execWriter $ appendSpan cs Nothing
     appendSpan [] _ = return ()
     appendSpan ((start@(Start _ t)):es) (Just (Start a s)) = tell [Span a s t] >> appendSpan es (Just start)
     appendSpan (Stop t:es) (Just (Start a s)) = tell [Span a s t] >> appendSpan es Nothing
-    appendSpan ((start@(Start _ _)):es) Nothing = appendSpan es (Just start)
-    appendSpan (Stop _:es) Nothing = appendSpan es Nothing
+    appendSpan ((start@(Start _ _)):es) _ = appendSpan es (Just start)
+    appendSpan (Stop _:es) _ = appendSpan es Nothing
 
 getDiffTime :: Span -> NominalDiffTime
 getDiffTime (Span _ b e) = diffUTCTime e b
