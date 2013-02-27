@@ -9,7 +9,6 @@ module Hammertime.Core (
 ) where
 
 import Control.Monad.Writer
-import System.IO
 import qualified Data.Text as T
 import Data.Time.Clock (diffUTCTime, getCurrentTime, NominalDiffTime)
 import Data.Maybe
