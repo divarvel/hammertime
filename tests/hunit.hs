@@ -25,7 +25,8 @@ tests = [
          ],
         testGroup "Computing spans" [
             testCase "Explicit stops" testComputeExplicitStops,
-            testCase "Implicit stops" testComputeImplicitStops
+            testCase "Implicit stops" testComputeImplicitStops,
+            testCase "Multiple stops" testComputeMultipleStops
         ]
     ]
 
@@ -116,6 +117,7 @@ testComputeExplicitStops =
                              , start3, stop3
                              , start4, stop4
                              ]
+
 testComputeImplicitStops =
         spans @=? [Span a1 t1 t2, Span a2 t2 t3, Span a3 t3 t4, Span a4 t4 t5]
     where
@@ -123,4 +125,13 @@ testComputeImplicitStops =
                              , start2
                              , start3
                              , start4, stop4
+                             ]
+
+testComputeMultipleStops =
+        spans @=? [ Span a1 t1 t2, Span a2 t2 t3, Span a3 t3 t4, Span a4 t4 t5]
+    where
+        spans = computeTimes [ start1, stop1, stop1
+                             , start2, stop2, stop2
+                             , start3, stop3, stop3
+                             , start4, stop4, stop4
                              ]
