@@ -11,6 +11,7 @@ import System.Console.CmdArgs.Explicit
 
 import Paths_hammertime
 import Hammertime.Core
+import Hammertime.Reports
 import qualified Hammertime.Types as Types
 
 data Action = Start { project :: String
@@ -103,8 +104,8 @@ getAction = processArgs hammertimeModes
 
 processAction :: Action -> IO ()
 processAction (Start p n ts) = appendStart (T.pack p) (T.pack n) (map T.pack ts)
-processAction (Report s p n t t') = putStrLn "Report"
 processAction (Stop) = appendStop
+processAction (Report s p n t t') = printReport t' s p n t
 processAction (Help) = print $ helpText [] HelpFormatDefault hammertimeModes
 
 main :: IO ()

@@ -4,7 +4,9 @@ module Hammertime.Core (
   , appendStop
   , ensureEventFile
   , computeTimes
+  , getTotalTime
   , readEvent
+  , readSavedEvents
   , showSavedEvents
 ) where
 
