@@ -2,7 +2,7 @@
 module Hammertime.Core (
     appendStart
   , appendStop
-  , ensureDataDir
+  , ensureEventFile
   , computeTimes
   , readEvent
   , showSavedEvents
@@ -25,6 +25,8 @@ eventFile = getUserDataFile "hammertime" "events"
 
 ensureDataDir = createDirectoryIfMissing True =<< dataDir
 
+ensureEventFile :: IO ()
+ensureEventFile = ensureDataDir >> eventFile >>= (flip appendFile "")
 
 createStart :: Activity -> IO Event
 createStart a = fmap (Start a) getCurrentTime
