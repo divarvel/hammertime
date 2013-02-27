@@ -6,6 +6,7 @@ module Hammertime.Core (
   , computeTimes
   , getTotalTime
   , readEvent
+  , readFilteredEvents
   , readSavedEvents
   , showSavedEvents
 ) where
@@ -82,6 +83,32 @@ getActivityTime p = getTotalTime . filterByActivity ((p==) . name)
 filterByActivity :: (Activity -> Bool) -> [Span] -> [Span]
 filterByActivity p = filter p' where
     p' = p . activity
+
+filterByActivityName n = filterByActivity ((==n) . name)
+filterByActivityProject p = filterByActivity ((==p) . project)
+filterByActivityTag t = filterByActivity ((elem t) . tags)
+
+filterNewEvents :: (UTCTime -> Bool) -> [Event] -> [Event]
+filterNewEvents p = filter p' where
+    p' = p . getTime
+    getTime (Start _ t) = t
+    getTime (Stop t) = t
+
+readFilteredEvents :: TimeSpan
+                   -> Maybe Project
+                   -> Maybe Name
+                   -> Maybe Tag
+                   -> IO [Span]
+readFilteredEvents s p a t = do
+    es <- readSavedEvents
+    return $ mainFilter es
+    where
+        mainFilter = activityFilter . computeTimes . eventFilter
+        eventFilter = filterNewEvents (const True) -- Toto only keep new events
+        activityFilter = tagFilter . nameFilter . projectFilter
+        projectFilter = maybe id filterByActivityProject p
+        nameFilter = maybe id filterByActivityName a
+        tagFilter = maybe id filterByActivityTag t
 
 readEvents :: T.Text -> [Event]
 readEvents s = mapMaybe readEvent (T.lines s)

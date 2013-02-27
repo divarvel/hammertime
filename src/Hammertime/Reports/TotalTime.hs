@@ -5,8 +5,8 @@ module Hammertime.Reports.TotalTime (
 
 import Hammertime.Core
 
-printTotalTimeReport s p a ts = do
-    es <- readSavedEvents
-    print $ getTotalTime (computeTimes es)
+printTotalTimeReport s p a t = do
+    es <- readFilteredEvents s p a t
+    print $ getTotalTime es
 
 

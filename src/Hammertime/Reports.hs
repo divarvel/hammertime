@@ -10,9 +10,9 @@ import Hammertime.Reports.TotalTime
 
 printReport :: ReportType
             -> TimeSpan
-            -> Maybe String
-            -> Maybe String
-            -> Maybe String
+            -> Maybe Project
+            -> Maybe Name
+            -> Maybe Tag
             -> IO ()
 printReport Simple = printSimpleReport
 printReport TotalTime = printTotalTimeReport
