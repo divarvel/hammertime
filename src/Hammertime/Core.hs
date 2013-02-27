@@ -23,7 +23,7 @@ import Hammertime.Types
 dataDir = getUserDataDir "hammertime"
 eventFile = getUserDataFile "hammertime" "events"
 
-ensureDataDir = createDirectoryIfMissing False =<< dataDir
+ensureDataDir = createDirectoryIfMissing True =<< dataDir
 
 
 createStart :: Activity -> IO Event
