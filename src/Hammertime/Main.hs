@@ -26,6 +26,7 @@ data Action = Start { project :: String
                       , type_ :: Types.ReportType
                       }
             | Help
+            | Version
             deriving (Show)
 
 defaultReport :: Action
@@ -64,7 +65,7 @@ reportMode = mode "report" defaultReport  "Generate report for a given time span
 hammertimeModes :: Mode Action
 hammertimeModes =
     let m = (modes "hammertime" defaultReport "Lightweight time tracker" [startMode, stopMode, reportMode])
-        addHelpTag m' = m' { modeGroupFlags = toGroup [flagHelpSimple $ const Help] }
+        addHelpTag m' = m' { modeGroupFlags = toGroup [flagHelpSimple $ const Help, flagVersion $ const Version] }
     in addHelpTag m
 
 
@@ -107,6 +108,7 @@ processAction (Start p n ts) = appendStart (T.pack p) (T.pack n) (map T.pack ts)
 processAction (Stop) = appendStop
 processAction (Report s p n t t') = printReport t' s (fmap T.pack p) (fmap T.pack n) (fmap T.pack t)
 processAction (Help) = print $ helpText [] HelpFormatDefault hammertimeModes
+processAction (Version) = putStrLn $ "Hammertime v" ++ (showVersion version)
 
 main :: IO ()
 main = ensureEventFile >> getAction >>= processAction
