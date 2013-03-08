@@ -4,7 +4,6 @@ module Hammertime.Reports (
 ) where
 
 import Hammertime.Types
-import Hammertime.Core
 import Hammertime.Reports.Simple
 import Hammertime.Reports.TotalTime
 

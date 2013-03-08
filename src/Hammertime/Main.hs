@@ -3,8 +3,7 @@
 module Main where
 
 import Data.Char (toLower)
-import Data.List (find, concat, intersperse)
-import Data.Maybe (maybe)
+import Data.List (find, intersperse)
 import qualified Data.Text as T
 import Data.Version (showVersion)
 import System.Console.CmdArgs.Explicit

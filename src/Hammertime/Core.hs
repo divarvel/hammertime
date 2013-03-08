@@ -5,6 +5,8 @@ module Hammertime.Core (
   , ensureEventFile
   , computeTimes
   , getTotalTime
+  , getProjectTime
+  , getActivityTime
   , readEvent
   , readFilteredEvents
   , readSavedEvents
@@ -13,7 +15,7 @@ module Hammertime.Core (
 
 import Control.Monad.Writer
 import qualified Data.Text as T
-import Data.Time.Clock (diffUTCTime, getCurrentTime, NominalDiffTime)
+import Data.Time.Clock (UTCTime, diffUTCTime, getCurrentTime, NominalDiffTime)
 import Data.Maybe
 import System.Directory (createDirectoryIfMissing)
 import System.Environment.XDG.BaseDir (getUserDataDir, getUserDataFile)
