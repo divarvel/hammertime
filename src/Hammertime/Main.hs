@@ -98,7 +98,7 @@ setReportType v r = fmap setType (parseArgument v)
 setTimeSpan :: Update Action
 setTimeSpan q r = fmap setSpan (parseArgument q)
     where
-        setSpan span = r { span_ = span }
+        setSpan s = r { span_ = s }
 
 getAction :: IO Action
 getAction = processArgs hammertimeModes

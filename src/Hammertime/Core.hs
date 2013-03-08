@@ -52,7 +52,6 @@ appendEvent e = do
 showSavedEvents :: T.Text -> IO ()
 showSavedEvents _ = do
     filename <- eventFile
-    d <- getCurrentTime
     cs <- readFile filename
     mapM_ print $ readEvents . T.pack $ cs
     return ()
@@ -102,7 +101,7 @@ readFilteredEvents :: TimeSpan
                    -> Maybe Name
                    -> Maybe Tag
                    -> IO [Span]
-readFilteredEvents s p a t = do
+readFilteredEvents _ p a t = do
     es <- readSavedEvents
     return $ mainFilter es
     where
