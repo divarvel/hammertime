@@ -2,8 +2,7 @@
 module Hammertime.Types where
 
 import qualified Data.Text as T
-import Data.Time
-import Data.Time.Clock.POSIX
+import Data.Time             (UTCTime)
 
 --------------------------------------------------------------------------------
 -- Core data types

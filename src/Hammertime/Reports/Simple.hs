@@ -1,10 +1,17 @@
-
 module Hammertime.Reports.Simple (
     printSimpleReport
 ) where
 
-printSimpleReport s p a ts = do
+import Hammertime.Types
+
+printSimpleReport :: TimeSpan
+                  -> Maybe Project
+                  -> Maybe Name
+                  -> Maybe Tag
+                  -> IO ()
+printSimpleReport _ _ _ _ = do
     printHeader
 
+printHeader :: IO ()
 printHeader = do
     putStrLn "Hammertime report for xxxxx"
