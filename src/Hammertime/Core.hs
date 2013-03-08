@@ -86,8 +86,13 @@ filterByActivity :: (Activity -> Bool) -> [Span] -> [Span]
 filterByActivity p = filter p' where
     p' = p . activity
 
+filterByActivityName :: Name -> [Span] -> [Span]
 filterByActivityName n = filterByActivity ((==n) . name)
+
+filterByActivityProject :: Project -> [Span] -> [Span]
 filterByActivityProject p = filterByActivity ((==p) . project)
+
+filterByActivityTag :: Tag -> [Span] -> [Span]
 filterByActivityTag t = filterByActivity ((elem t) . tags)
 
 filterNewEvents :: (UTCTime -> Bool) -> [Event] -> [Event]
