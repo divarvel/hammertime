@@ -4,6 +4,9 @@ module Hammertime.Types where
 import qualified Data.Text as T
 import Data.Time             (UTCTime)
 
+--------------------------------------------------------------------------------
+-- Core data types
+
 type Project = T.Text
 type Name = T.Text
 type Tag = T.Text
@@ -19,3 +22,10 @@ data Span = Span { activity :: Activity
                  , begin :: UTCTime
                  , end :: UTCTime
                  } deriving (Eq, Read, Show)
+
+--------------------------------------------------------------------------------
+-- Reports related data types
+
+data TimeSpan = Month | Week | Day deriving (Eq, Read, Show, Bounded, Enum)
+data ReportType = Simple | TotalTime deriving (Eq, Read, Show, Bounded, Enum)
+
