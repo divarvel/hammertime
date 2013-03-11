@@ -5,6 +5,8 @@ module Hammertime.Core (
   , ensureEventFile
   , computeTimes
   , getTotalTime
+  , getProjectTime
+  , getActivityTime
   , readEvent
   , readFilteredEvents
   , readSavedEvents
@@ -12,20 +14,21 @@ module Hammertime.Core (
 ) where
 
 import Control.Monad.Writer
-import System.IO
 import qualified Data.Text as T
-import Data.Time
-import Data.Time.Clock.POSIX
-import Data.List
+import Data.Time.Clock (UTCTime, diffUTCTime, getCurrentTime, NominalDiffTime)
 import Data.Maybe
 import System.Directory (createDirectoryIfMissing)
 import System.Environment.XDG.BaseDir (getUserDataDir, getUserDataFile)
 
 import Hammertime.Types
 
+dataDir :: IO FilePath
 dataDir = getUserDataDir "hammertime"
+
+eventFile :: IO FilePath
 eventFile = getUserDataFile "hammertime" "events"
 
+ensureDataDir :: IO ()
 ensureDataDir = createDirectoryIfMissing True =<< dataDir
 
 ensureEventFile :: IO ()
@@ -49,7 +52,6 @@ appendEvent e = do
 showSavedEvents :: T.Text -> IO ()
 showSavedEvents _ = do
     filename <- eventFile
-    d <- getCurrentTime
     cs <- readFile filename
     mapM_ print $ readEvents . T.pack $ cs
     return ()
@@ -65,11 +67,11 @@ computeTimes cs = execWriter $ appendSpan cs Nothing
     appendSpan [] _ = return ()
     appendSpan ((start@(Start _ t)):es) (Just (Start a s)) = tell [Span a s t] >> appendSpan es (Just start)
     appendSpan (Stop t:es) (Just (Start a s)) = tell [Span a s t] >> appendSpan es Nothing
-    appendSpan ((start@(Start _ _)):es) Nothing = appendSpan es (Just start)
-    appendSpan (Stop _:es) Nothing = appendSpan es Nothing
+    appendSpan ((start@(Start _ _)):es) _ = appendSpan es (Just start)
+    appendSpan (Stop _:es) _ = appendSpan es Nothing
 
 getDiffTime :: Span -> NominalDiffTime
-getDiffTime (Span _ begin end) = diffUTCTime end begin
+getDiffTime (Span _ b e) = diffUTCTime e b
 
 getTotalTime :: [Span] -> NominalDiffTime
 getTotalTime spans = sum . map getDiffTime $ spans
@@ -84,8 +86,13 @@ filterByActivity :: (Activity -> Bool) -> [Span] -> [Span]
 filterByActivity p = filter p' where
     p' = p . activity
 
+filterByActivityName :: Name -> [Span] -> [Span]
 filterByActivityName n = filterByActivity ((==n) . name)
+
+filterByActivityProject :: Project -> [Span] -> [Span]
 filterByActivityProject p = filterByActivity ((==p) . project)
+
+filterByActivityTag :: Tag -> [Span] -> [Span]
 filterByActivityTag t = filterByActivity ((elem t) . tags)
 
 filterNewEvents :: (UTCTime -> Bool) -> [Event] -> [Event]
@@ -99,7 +106,7 @@ readFilteredEvents :: TimeSpan
                    -> Maybe Name
                    -> Maybe Tag
                    -> IO [Span]
-readFilteredEvents s p a t = do
+readFilteredEvents _ p a t = do
     es <- readSavedEvents
     return $ mainFilter es
     where

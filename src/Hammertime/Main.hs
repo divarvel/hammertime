@@ -3,13 +3,13 @@
 module Main where
 
 import Data.Char (toLower)
-import Data.List (find, concat, intersperse)
-import Data.Maybe (maybe)
+import Data.List (find, intersperse)
 import qualified Data.Text as T
 import Data.Version (showVersion)
 import System.Console.CmdArgs.Explicit
 
 import Paths_hammertime
+
 import Hammertime.Core
 import Hammertime.Reports
 import qualified Hammertime.Types as Types
@@ -98,7 +98,7 @@ setReportType v r = fmap setType (parseArgument v)
 setTimeSpan :: Update Action
 setTimeSpan q r = fmap setSpan (parseArgument q)
     where
-        setSpan span = r { span_ = span }
+        setSpan s = r { span_ = s }
 
 getAction :: IO Action
 getAction = processArgs hammertimeModes

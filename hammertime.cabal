@@ -15,6 +15,7 @@ build-type:          Simple
 cabal-version:       >=1.8
 
 Library
+  Ghc-Options:    -Wall
   Hs-Source-Dirs: src
   build-depends:
     base,
@@ -28,7 +29,8 @@ Library
     Hammertime.Core
     Hammertime.Types
 
-executable hammertime
+Executable hammertime
+  Ghc-Options:    -Wall
   main-is:             Hammertime/Main.hs
   hs-source-dirs:      src
   -- other-modules:       
