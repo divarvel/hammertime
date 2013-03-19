@@ -2,6 +2,7 @@
 module Hammertime.Core (
     appendStart
   , appendStop
+  , displayCurrentActivity
   , ensureEventFile
   , computeTimes
   , getTotalTime
@@ -60,6 +61,37 @@ readSavedEvents :: IO [Event]
 readSavedEvents = do
     filename <- eventFile
     fmap (readEvents . T.pack) $ readFile filename
+
+getCurrentActivity :: [Event] -> IO (Maybe Span)
+getCurrentActivity es = let
+    ongoingStart = case (reverse es) of
+        (Start a t:_)-> Just $ Start a t
+        _ -> Nothing
+    in do
+        now <- getCurrentTime
+        return $ case ongoingStart of
+            (Just (Start a t)) -> Just $ Span a t now
+            _ -> Nothing
+
+displayCurrentActivity :: IO ()
+displayCurrentActivity = let
+        noActivity = "No current activity"
+        showActivity s@(Span a _ _) =
+            (showProject a ++ ": " ++ showName a) ++ " " ++
+            (renderDiffTime $ getDiffTime s)
+        showName = T.unpack . name
+        showProject = T.unpack . project
+        renderDiffTime = formatSeconds . round
+    in do
+        es <- readSavedEvents
+        ca <- getCurrentActivity es
+        putStrLn $ maybe noActivity showActivity ca
+
+formatSeconds :: Integer -> String
+formatSeconds interval = let
+        minutes = interval `div` 60
+        remaining = interval `mod` 60
+   in show minutes ++ "m " ++ show remaining ++ "s"
 
 computeTimes :: [Event] -> [Span]
 computeTimes cs = execWriter $ appendSpan cs Nothing
