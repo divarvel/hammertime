@@ -70,7 +70,7 @@ currentMode =
 
 hammertimeModes :: Mode Action
 hammertimeModes =
-    let m = (modes "hammertime" defaultReport "Lightweight time tracker" [startMode, stopMode, reportMode, currentMode])
+    let m = (modes "hammertime" Current "Lightweight time tracker" [startMode, stopMode, reportMode, currentMode])
         addHelpTag m' = m' { modeGroupFlags = toGroup [flagHelpSimple $ const Help, flagVersion $ const Version] }
     in addHelpTag m
 
