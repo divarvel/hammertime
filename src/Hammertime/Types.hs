@@ -28,5 +28,8 @@ type TimeRange = (UTCTime, UTCTime)
 --------------------------------------------------------------------------------
 -- Reports related data types
 
+type Report = T.Text
+type ReportGenerator = [Span] -> Report
+
 data ReportType = Simple | TotalTime deriving (Eq, Read, Show, Bounded, Enum)
 
