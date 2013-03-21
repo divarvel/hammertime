@@ -35,6 +35,7 @@ loadEvents mtr = do
 
 appendEvent :: Event -> IO ()
 appendEvent e = do
+    ensureDataDir
     f <- eventFile
     appendFile f (show e ++ "\n")
 
