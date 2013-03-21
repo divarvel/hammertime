@@ -3,7 +3,7 @@ module Hammertime.Reports (
     printReport
 ) where
 
-import qualified Data.Text as T
+import qualified Data.Text.IO as TIO
 
 import Hammertime.Core (readFilteredEvents)
 import Hammertime.Types
@@ -18,7 +18,7 @@ printReport :: ReportType
             -> IO ()
 printReport rt s p a ts =
     let g = getReportGenerator rt
-    in (generateReport g s p a ts) >>= (putStr . T.unpack)
+    in (generateReport g s p a ts) >>= TIO.putStr
 
 
 
