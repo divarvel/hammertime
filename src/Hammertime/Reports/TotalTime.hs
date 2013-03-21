@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Hammertime.Reports.TotalTime (
-    totalTimeReportGen
+    report
 ) where
 
 import qualified Data.Text as T
@@ -9,5 +9,5 @@ import qualified Data.Text as T
 import Hammertime.Core (getTotalTime)
 import Hammertime.Types
 
-totalTimeReportGen :: ReportGenerator
-totalTimeReportGen spans = (T.pack . show) $ getTotalTime spans
+report :: ReportGenerator
+report spans = (T.pack . show) $ getTotalTime spans

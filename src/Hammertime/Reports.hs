@@ -7,8 +7,8 @@ import qualified Data.Text as T
 
 import Hammertime.Core (readFilteredEvents)
 import Hammertime.Types
-import Hammertime.Reports.Simple
-import Hammertime.Reports.TotalTime
+import qualified Hammertime.Reports.Simple as SR
+import qualified Hammertime.Reports.TotalTime as TTR
 
 printReport :: ReportType
             -> TimeSpan
@@ -34,5 +34,5 @@ generateReport generator s p a ts = do
 
 getReportGenerator :: ReportType
                    -> ReportGenerator
-getReportGenerator Simple = simpleReportGen
-getReportGenerator TotalTime = totalTimeReportGen
+getReportGenerator Simple = SR.report
+getReportGenerator TotalTime = TTR.report

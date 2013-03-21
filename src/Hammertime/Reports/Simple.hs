@@ -1,15 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Hammertime.Reports.Simple (
-    simpleReportGen
+    report
 ) where
 
 import Data.Monoid (mappend)
 
 import Hammertime.Types
 
-simpleReportGen :: ReportGenerator
-simpleReportGen _ =
+report :: ReportGenerator
+report _ =
     header `mappend` "todo"
 
 header :: Report
