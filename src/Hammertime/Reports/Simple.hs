@@ -22,7 +22,7 @@ report spans =
     in header `mappend` projects
 
 header :: Report
-header = "Hammertime report for \n\n"
+header = "Hammertime report \n\n"
 
 reportProject :: (Project, [Span]) -> Report
 reportProject (p, spans) =
@@ -39,7 +39,7 @@ reportActivity :: (Name, [Span]) -> Report
 reportActivity (n, spans) =
     let totalTime = getTotalTime spans
         displayedTime = T.pack $ show totalTime
-        tab = "    "
+        tab = "  "
     in tab `mappend`
        n `mappend` ": " `mappend`
        displayedTime `mappend` "\n"
