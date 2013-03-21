@@ -1,8 +1,6 @@
 
 module Hammertime.Core (
-    createStart
-  , createStop
-  , computeTimes
+    computeTimes
   , getTotalTime
   , getProjectTime
   , getActivityTime
@@ -10,17 +8,11 @@ module Hammertime.Core (
 ) where
 
 import Control.Monad.Writer
-import Data.Time.Clock (diffUTCTime, getCurrentTime, NominalDiffTime)
+import Data.Time.Clock (diffUTCTime, NominalDiffTime)
 
 import Hammertime.Types
 import Hammertime.Storage
 
-
-createStart :: Activity -> IO ()
-createStart a = fmap (Start a) getCurrentTime >>= appendEvent
-
-createStop :: IO ()
-createStop = fmap Stop getCurrentTime >>= appendEvent
 
 computeTimes :: [Event] -> [Span]
 computeTimes cs = execWriter $ appendSpan cs Nothing

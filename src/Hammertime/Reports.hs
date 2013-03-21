@@ -11,7 +11,7 @@ import qualified Hammertime.Reports.Simple as SR
 import qualified Hammertime.Reports.TotalTime as TTR
 
 printReport :: ReportType
-            -> TimeSpan
+            -> TimeRange
             -> Maybe Project
             -> Maybe Name
             -> Maybe Tag
@@ -23,7 +23,7 @@ printReport rt s p a ts =
 
 
 generateReport :: ReportGenerator
-               -> TimeSpan
+               -> TimeRange
                -> Maybe Project
                -> Maybe Name
                -> Maybe Tag

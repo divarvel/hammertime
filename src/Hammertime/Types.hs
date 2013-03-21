@@ -31,5 +31,6 @@ type TimeRange = (UTCTime, UTCTime)
 type Report = T.Text
 type ReportGenerator = [Span] -> Report
 
+data TimeSpan = Month | Week | Day deriving (Bounded, Enum, Show)
 data ReportType = Simple | TotalTime deriving (Eq, Read, Show, Bounded, Enum)
 
