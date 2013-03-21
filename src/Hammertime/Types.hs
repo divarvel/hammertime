@@ -26,6 +26,9 @@ data Span = Span { activity :: Activity
 --------------------------------------------------------------------------------
 -- Reports related data types
 
+type Report = T.Text
+type ReportGenerator = [Span] -> Report
+
 data TimeSpan = Month | Week | Day deriving (Eq, Read, Show, Bounded, Enum)
 data ReportType = Simple | TotalTime deriving (Eq, Read, Show, Bounded, Enum)
 
