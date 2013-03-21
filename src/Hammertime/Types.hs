@@ -23,9 +23,10 @@ data Span = Span { activity :: Activity
                  , end :: UTCTime
                  } deriving (Eq, Read, Show)
 
+type TimeRange = (UTCTime, UTCTime)
+
 --------------------------------------------------------------------------------
 -- Reports related data types
 
-data TimeSpan = Month | Week | Day deriving (Eq, Read, Show, Bounded, Enum)
 data ReportType = Simple | TotalTime deriving (Eq, Read, Show, Bounded, Enum)
 

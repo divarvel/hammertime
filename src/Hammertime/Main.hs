@@ -104,8 +104,8 @@ getAction :: IO Action
 getAction = processArgs hammertimeModes
 
 processAction :: Action -> IO ()
-processAction (Start p n ts) = appendStart (T.pack p) (T.pack n) (map T.pack ts)
-processAction (Stop) = appendStop
+processAction (Start p n ts) = createStart (T.pack p) (T.pack n) (map T.pack ts)
+processAction (Stop) = createStop
 processAction (Report s p n t t') = printReport t' s (fmap T.pack p) (fmap T.pack n) (fmap T.pack t)
 processAction (Help) = print $ helpText [] HelpFormatDefault hammertimeModes
 processAction (Version) = putStrLn $ "Hammertime v" ++ (showVersion version)

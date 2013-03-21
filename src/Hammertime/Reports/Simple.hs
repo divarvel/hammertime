@@ -4,7 +4,7 @@ module Hammertime.Reports.Simple (
 
 import Hammertime.Types
 
-printSimpleReport :: TimeSpan
+printSimpleReport :: TimeRange
                   -> Maybe Project
                   -> Maybe Name
                   -> Maybe Tag

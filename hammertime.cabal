@@ -27,6 +27,7 @@ Library
     mtl
   Exposed-Modules:
     Hammertime.Core
+    Hammertime.Storage
     Hammertime.Types
 
 Executable hammertime

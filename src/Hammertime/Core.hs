@@ -1,65 +1,26 @@
 
 module Hammertime.Core (
-    appendStart
-  , appendStop
-  , ensureEventFile
+    createStart
+  , createStop
   , computeTimes
   , getTotalTime
   , getProjectTime
   , getActivityTime
-  , readEvent
   , readFilteredEvents
-  , readSavedEvents
-  , showSavedEvents
 ) where
 
 import Control.Monad.Writer
-import qualified Data.Text as T
-import Data.Time.Clock (UTCTime, diffUTCTime, getCurrentTime, NominalDiffTime)
-import Data.Maybe
-import System.Directory (createDirectoryIfMissing)
-import System.Environment.XDG.BaseDir (getUserDataDir, getUserDataFile)
+import Data.Time.Clock (diffUTCTime, getCurrentTime, NominalDiffTime)
 
 import Hammertime.Types
-
-dataDir :: IO FilePath
-dataDir = getUserDataDir "hammertime"
-
-eventFile :: IO FilePath
-eventFile = getUserDataFile "hammertime" "events"
-
-ensureDataDir :: IO ()
-ensureDataDir = createDirectoryIfMissing True =<< dataDir
-
-ensureEventFile :: IO ()
-ensureEventFile = ensureDataDir >> eventFile >>= (flip appendFile "")
-
-createStart :: Activity -> IO Event
-createStart a = fmap (Start a) getCurrentTime
-
-appendStart :: Project -> Name -> [Tag] -> IO ()
-appendStart p n ts = createStart (Activity p n ts) >>= appendEvent
-
-appendStop :: IO ()
-appendStop = fmap Stop getCurrentTime >>= appendEvent
+import Hammertime.Storage
 
 
-appendEvent :: Event -> IO ()
-appendEvent e = do
-    filename <- eventFile
-    appendFile filename (show e ++ "\n")
+createStart :: Activity -> IO ()
+createStart a = fmap (Start a) getCurrentTime >>= appendEvent
 
-showSavedEvents :: T.Text -> IO ()
-showSavedEvents _ = do
-    filename <- eventFile
-    cs <- readFile filename
-    mapM_ print $ readEvents . T.pack $ cs
-    return ()
-
-readSavedEvents :: IO [Event]
-readSavedEvents = do
-    filename <- eventFile
-    fmap (readEvents . T.pack) $ readFile filename
+createStop :: IO ()
+createStop = fmap Stop getCurrentTime >>= appendEvent
 
 computeTimes :: [Event] -> [Span]
 computeTimes cs = execWriter $ appendSpan cs Nothing
@@ -95,30 +56,19 @@ filterByActivityProject p = filterByActivity ((==p) . project)
 filterByActivityTag :: Tag -> [Span] -> [Span]
 filterByActivityTag t = filterByActivity ((elem t) . tags)
 
-filterNewEvents :: (UTCTime -> Bool) -> [Event] -> [Event]
-filterNewEvents p = filter p' where
-    p' = p . getTime
-    getTime (Start _ t) = t
-    getTime (Stop t) = t
 
-readFilteredEvents :: TimeSpan
+readFilteredEvents :: TimeRange
                    -> Maybe Project
                    -> Maybe Name
                    -> Maybe Tag
                    -> IO [Span]
-readFilteredEvents _ p a t = do
-    es <- readSavedEvents
+readFilteredEvents tr p a t = do
+    es <- loadEvents (Just tr)
     return $ mainFilter es
     where
-        mainFilter = activityFilter . computeTimes . eventFilter
-        eventFilter = filterNewEvents (const True) -- Toto only keep new events
+        mainFilter = activityFilter . computeTimes
         activityFilter = tagFilter . nameFilter . projectFilter
         projectFilter = maybe id filterByActivityProject p
         nameFilter = maybe id filterByActivityName a
         tagFilter = maybe id filterByActivityTag t
 
-readEvents :: T.Text -> [Event]
-readEvents s = mapMaybe readEvent (T.lines s)
-
-readEvent :: T.Text -> Maybe Event
-readEvent line = listToMaybe . map fst . take 1 . reads . T.unpack $ line
