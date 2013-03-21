@@ -122,3 +122,4 @@ readEvents s = mapMaybe readEvent (T.lines s)
 
 readEvent :: T.Text -> Maybe Event
 readEvent line = listToMaybe . map fst . take 1 . reads . T.unpack $ line
+

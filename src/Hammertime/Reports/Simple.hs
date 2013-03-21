@@ -1,17 +1,16 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Hammertime.Reports.Simple (
-    printSimpleReport
+    simpleReportGen
 ) where
+
+import Data.Monoid (mappend)
 
 import Hammertime.Types
 
-printSimpleReport :: TimeSpan
-                  -> Maybe Project
-                  -> Maybe Name
-                  -> Maybe Tag
-                  -> IO ()
-printSimpleReport _ _ _ _ = do
-    printHeader
+simpleReportGen :: ReportGenerator
+simpleReportGen _ =
+    header `mappend` "todo"
 
-printHeader :: IO ()
-printHeader = do
-    putStrLn "Hammertime report for xxxxx"
+header :: Report
+header = "Hammertime report for xxxxx"
