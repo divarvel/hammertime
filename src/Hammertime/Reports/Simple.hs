@@ -29,7 +29,10 @@ reportProject (p, spans) =
     let pairs = groupByActivity spans
         sorted = sortBy (compare `on` fst) pairs
         activities = foldMap reportActivity sorted
-        firstLine = p `mappend` "\n"
+        totalTime = getTotalTime spans
+        displayedTime = T.pack $ show totalTime
+        firstLine = p `mappend` ": " `mappend`
+                    displayedTime `mappend` "\n"
     in firstLine `mappend` activities `mappend` "\n"
 
 reportActivity :: (Name, [Span]) -> Report
