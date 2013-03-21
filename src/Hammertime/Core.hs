@@ -49,11 +49,12 @@ filterByActivityTag :: Tag -> [Span] -> [Span]
 filterByActivityTag t = filterByActivity ((elem t) . tags)
 
 
-readFilteredEvents :: TimeRange
+readFilteredEvents :: MonadStorage m
+                   => TimeRange
                    -> Maybe Project
                    -> Maybe Name
                    -> Maybe Tag
-                   -> IO [Span]
+                   -> m [Span]
 readFilteredEvents tr p a t = do
     es <- loadEvents (Just tr)
     return $ mainFilter es

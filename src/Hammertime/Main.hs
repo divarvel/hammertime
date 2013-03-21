@@ -2,6 +2,7 @@
 module Main where
 
 import qualified Data.Text as T
+import qualified Data.Text.IO as TIO
 import Data.Time.Clock (UTCTime(..), getCurrentTime)
 import Data.Time.Calendar (addDays)
 import Data.Version (showVersion)
@@ -10,14 +11,14 @@ import Paths_hammertime
 
 import Hammertime.CLI
 import Hammertime.Reports
-import Hammertime.Storage
+import Hammertime.Storage.File
 import qualified Hammertime.Types as Types
 
 
 processAction :: UTCTime -> Action -> IO ()
 processAction now (Start p n ts) = appendEvent $ Types.Start (Types.Activity (T.pack p) (T.pack n) (map T.pack ts)) now
 processAction now (Stop) = appendEvent $ Types.Stop now
-processAction now (Report s p n t t') = printReport t' (timeSpanToRange s now) (fmap T.pack p) (fmap T.pack n) (fmap T.pack t)
+processAction now (Report s p n t t') = TIO.putStr =<< generateReport t' (timeSpanToRange s now) (fmap T.pack p) (fmap T.pack n) (fmap T.pack t)
 processAction _ (Help) = putStr showHelp 
 processAction _ (Version) = putStrLn $ "Hammertime v" ++ (showVersion version)
 
