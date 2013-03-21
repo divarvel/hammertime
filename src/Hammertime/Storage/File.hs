@@ -1,8 +1,6 @@
+{-#LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Hammertime.Storage.File (
-    loadEvents
-  , appendEvent
-  ) where
+module Hammertime.Storage.File  where
 
 
 -- import System.IO
@@ -12,32 +10,34 @@ import Data.Maybe (mapMaybe, listToMaybe)
 import System.Directory (createDirectoryIfMissing)
 import System.Environment.XDG.BaseDir (getUserDataDir, getUserDataFile)
 
+import Hammertime.Storage
 import Hammertime.Types
 
+newtype FileStorage a = FileStorage { runStorage :: IO a } deriving (Monad)
 
-dataDir, eventFile :: IO FilePath
+
+eventFile, dataDir :: IO FilePath
+eventFile =  getUserDataFile "hammertime" "events"
 dataDir = getUserDataDir "hammertime"
-eventFile = getUserDataFile "hammertime" "events"
 
-ensureDataDir :: IO ()
-ensureDataDir = createDirectoryIfMissing True =<< dataDir
 
-loadEvents :: Maybe TimeRange -> IO [Event]
-loadEvents mtr = do
-    ensureDataDir
-    f <- eventFile
-    allEvents <- fmap (readEvents . T.pack) $ readFile f
-    return $ filter (maybe (const True) inRange mtr) allEvents
- where
-   inRange (b,e) ev = getTime ev >= b && getTime ev <= e
-   getTime (Start _ t) = t
-   getTime (Stop t) = t
+instance MonadStorage FileStorage where
+    initStorage = FileStorage $ do
+        dir <- dataDir
+        createDirectoryIfMissing True dir
+        file <- eventFile
+        appendFile file ""
 
-appendEvent :: Event -> IO ()
-appendEvent e = do
-    ensureDataDir
-    f <- eventFile
-    appendFile f (show e ++ "\n")
+    loadEvents mtr = FileStorage $ do
+        f <- eventFile
+        allEvents <- fmap (readEvents . T.pack) $ readFile f
+        return $ filter (maybe (const True) inRange mtr) allEvents
+     where
+       inRange (b,e) ev = eventTime ev >= b && eventTime ev <= e
+
+    appendEvent e = FileStorage $ do
+        f <- eventFile
+        appendFile f (show e ++ "\n")
 
 readEvents :: T.Text -> [Event]
 readEvents s = mapMaybe readEvent (T.lines s)

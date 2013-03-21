@@ -11,14 +11,15 @@ import Paths_hammertime
 
 import Hammertime.CLI
 import Hammertime.Reports
-import Hammertime.Storage.File
+import Hammertime.Storage
+import qualified Hammertime.Storage.File as Store
 import qualified Hammertime.Types as Types
 
 
 processAction :: UTCTime -> Action -> IO ()
-processAction now (Start p n ts) = appendEvent $ Types.Start (Types.Activity (T.pack p) (T.pack n) (map T.pack ts)) now
-processAction now (Stop) = appendEvent $ Types.Stop now
-processAction now (Report s p n t t') = TIO.putStr =<< generateReport t' (timeSpanToRange s now) (fmap T.pack p) (fmap T.pack n) (fmap T.pack t)
+processAction now (Start p n ts) = Store.runStorage $ appendEvent $ Types.Start (Types.Activity (T.pack p) (T.pack n) (map T.pack ts)) now
+processAction now (Stop) = Store.runStorage $ appendEvent $ Types.Stop now
+processAction now (Report s p n t t') = TIO.putStr =<< Store.runStorage ( generateReport t' (timeSpanToRange s now) (fmap T.pack p) (fmap T.pack n) (fmap T.pack t) )
 processAction _ (Help) = putStr showHelp 
 processAction _ (Version) = putStrLn $ "Hammertime v" ++ (showVersion version)
 
@@ -30,6 +31,7 @@ timeSpanToRange Types.Month now@(UTCTime day dt) = (UTCTime (addDays (-30) day) 
 
 main :: IO ()
 main = do
+    Store.runStorage initStorage
     now <- getCurrentTime
     act <- getAction
     processAction now act

@@ -16,7 +16,10 @@ data Activity = Activity { project :: Project
                          , tags :: [Tag]
                          } deriving (Eq, Read, Show)
 
-data Event = Start Activity UTCTime | Stop UTCTime deriving (Eq, Read, Show)
+data Event = Start { eventActivity :: Activity
+                   , eventTime :: UTCTime }
+           | Stop  { eventTime :: UTCTime }
+           deriving (Eq, Read, Show)
 
 data Span = Span { activity :: Activity
                  , begin :: UTCTime
