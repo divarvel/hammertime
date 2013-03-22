@@ -16,12 +16,17 @@ data Activity = Activity { project :: Project
                          , tags :: [Tag]
                          } deriving (Eq, Read, Show)
 
-data Event = Start Activity UTCTime | Stop UTCTime deriving (Eq, Read, Show)
+data Event = Start { eventActivity :: Activity
+                   , eventTime :: UTCTime }
+           | Stop  { eventTime :: UTCTime }
+           deriving (Eq, Read, Show)
 
 data Span = Span { activity :: Activity
                  , begin :: UTCTime
                  , end :: UTCTime
                  } deriving (Eq, Read, Show)
+
+type TimeRange = (UTCTime, UTCTime)
 
 --------------------------------------------------------------------------------
 -- Reports related data types
@@ -29,6 +34,6 @@ data Span = Span { activity :: Activity
 type Report = T.Text
 type ReportGenerator = [Span] -> Report
 
-data TimeSpan = Month | Week | Day deriving (Eq, Read, Show, Bounded, Enum)
+data TimeSpan = Month | Week | Day deriving (Bounded, Enum, Show)
 data ReportType = Simple | TotalTime deriving (Eq, Read, Show, Bounded, Enum)
 
