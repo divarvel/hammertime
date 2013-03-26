@@ -19,7 +19,7 @@ generateReport :: MonadStorage m
                -> m Report
 generateReport typ s p a ts = do
     spans <- readFilteredEvents s p a ts
-    return $ (getReportGenerator typ) spans
+    return $ getReportGenerator typ spans
 
 getReportGenerator :: ReportType
                    -> ReportGenerator

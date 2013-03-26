@@ -7,7 +7,7 @@ module Hammertime.CLI (
 
 
 import Data.Char (toLower)
-import Data.List (find, intersperse)
+import Data.List (find, intercalate)
 import System.Console.CmdArgs.Explicit
 
 import qualified Hammertime.Types as Types
@@ -35,8 +35,8 @@ defaultReport = Report Types.Day Nothing Nothing Nothing Types.Simple
 parseArgument :: (Bounded a, Enum a, Show a) => String -> Either String a
 parseArgument string = maybe (Left $ "Accepted values: " ++ p values) Right matching
     where
-        p = concat . (intersperse " | ") . (map show)
-        matching = find ((match string) . show) values
+        p = intercalate " | " . map show
+        matching = find (match string . show) values
         match s s' = map toLower s == map toLower s'
         values = [minBound..maxBound]
 
@@ -44,8 +44,8 @@ startMode :: Mode Action
 startMode =
     let m = mode "start" (Start "" "" []) "Start a new activity" dummyArg  []
     in m { modeArgs = ([
-        (flagArg setProject "PROJECT"),
-        (flagArg setActivity "ACTIVITY")
+        flagArg setProject "PROJECT",
+        flagArg setActivity "ACTIVITY"
     ], Just (flagArg addTag "[TAGS]")) }
 
 stopMode :: Mode Action
@@ -78,16 +78,16 @@ setActivity :: Update Action
 setActivity a s = Right $ s { name = a }
 
 addTag :: Update Action
-addTag t s = Right $ s { tags = (tags s ++ [t]) }
+addTag t s = Right $ s { tags = tags s ++ [t] }
 
 setProjectFilter :: Update Action
-setProjectFilter p r = Right $ r { project_ = (Just p) }
+setProjectFilter p r = Right $ r { project_ = Just p }
 
 setActivityFilter :: Update Action
-setActivityFilter a r = Right $ r { name_ = (Just a) }
+setActivityFilter a r = Right $ r { name_ = Just a }
 
 setTagsFilter :: Update Action
-setTagsFilter t r = Right $ r { tag_ = (Just t) }
+setTagsFilter t r = Right $ r { tag_ = Just t }
 
 setReportType :: Update Action
 setReportType v r = fmap setType (parseArgument v)

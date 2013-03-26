@@ -46,7 +46,7 @@ filterByActivityProject :: Project -> [Span] -> [Span]
 filterByActivityProject p = filterByActivity ((==p) . project)
 
 filterByActivityTag :: Tag -> [Span] -> [Span]
-filterByActivityTag t = filterByActivity ((elem t) . tags)
+filterByActivityTag t = filterByActivity (elem t . tags)
 
 
 readFilteredEvents :: MonadStorage m
