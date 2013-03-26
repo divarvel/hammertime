@@ -20,6 +20,7 @@ processAction :: UTCTime -> Action -> IO ()
 processAction now (Start p n ts) = Store.runStorage $ appendEvent $ Types.Start (Types.Activity (T.pack p) (T.pack n) (map T.pack ts)) now
 processAction now (Stop) = Store.runStorage $ appendEvent $ Types.Stop now
 processAction now (Report s p n t t') = TIO.putStr =<< Store.runStorage ( generateReport t' (timeSpanToRange s now) (fmap T.pack p) (fmap T.pack n) (fmap T.pack t) )
+processAction now (Current) = TIO.putStr =<< Store.runStorage ( currentActivity now )
 processAction _ (Help) = putStr showHelp
 processAction _ (Version) = putStrLn $ "Hammertime v" ++ showVersion version
 

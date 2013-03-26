@@ -23,6 +23,7 @@ data Action = Start { project :: String
                       , tag_ :: Maybe String
                       , type_ :: Types.ReportType
                       }
+            | Current
             | Help
             | Version
             deriving (Show)
@@ -53,6 +54,11 @@ stopMode =
     let m = mode "stop" Stop "Stop current activity" dummyArg []
     in m { modeArgs = ([], Nothing) }
 
+currentMode :: Mode Action
+currentMode =
+    let m = mode "current" Current "Display current activity" dummyArg []
+    in m { modeArgs = ([], Nothing) }
+
 reportMode :: Mode Action
 reportMode = mode "report" defaultReport  "Generate report for a given time span (default: day)" (flagArg setTimeSpan "month|week|day") [
         flagReq ["project", "p"] setProjectFilter "PROJECT" "Filter by project",
@@ -63,7 +69,7 @@ reportMode = mode "report" defaultReport  "Generate report for a given time span
 
 hammertimeModes :: Mode Action
 hammertimeModes =
-    let m = (modes "hammertime" defaultReport "Lightweight time tracker" [startMode, stopMode, reportMode])
+    let m = (modes "hammertime" Current "Lightweight time tracker" [startMode, stopMode, reportMode, currentMode])
         addHelpTag m' = m' { modeGroupFlags = toGroup [flagHelpSimple $ const Help, flagVersion $ const Version] }
     in addHelpTag m
 
