@@ -67,17 +67,6 @@ readFilteredEvents tr p a t = do
         nameFilter = maybe id filterByActivityName a
         tagFilter = maybe id filterByActivityTag t
 
-readLastStart :: MonadStorage m
-              => m (Maybe Event)
-readLastStart = do
-    es <- loadEvents Nothing
-    return $ getLastStart es
-    where
-        getLastStart [] = Nothing
-        getLastStart events = case last events of
-            s@(Start _ _) -> Just s
-            _ -> Nothing
-
 makeCurrentSpan :: MonadStorage m
                 => UTCTime
                 -> m (Maybe Span)
