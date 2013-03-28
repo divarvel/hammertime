@@ -1,13 +1,17 @@
 
 module Hammertime.Reports (
-    generateReport
+      generateReport
+    , currentActivity
 ) where
 
-import Hammertime.Core (readFilteredEvents)
+import Data.Time (UTCTime)
+
+import Hammertime.Core (makeCurrentSpan, readFilteredEvents)
 import Hammertime.Types
 import Hammertime.Storage
 import qualified Hammertime.Reports.Simple as SR
 import qualified Hammertime.Reports.TotalTime as TTR
+import qualified Hammertime.Reports.Current as CR
 
 
 generateReport :: MonadStorage m
@@ -25,3 +29,10 @@ getReportGenerator :: ReportType
                    -> ReportGenerator
 getReportGenerator Simple = SR.report
 getReportGenerator TotalTime = TTR.report
+
+currentActivity :: MonadStorage m
+                => UTCTime
+                -> m Report
+currentActivity now = do
+    sp <- makeCurrentSpan now
+    return $ CR.report sp
