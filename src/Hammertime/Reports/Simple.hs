@@ -50,8 +50,8 @@ groupByProject = makeAssocList (project . activity)
 groupByActivity :: [Span] -> [(Name, [Span])]
 groupByActivity = makeAssocList (name . activity)
 
-makeAssocList :: (Eq a) => (Span -> a) -> [Span] -> [(a, [Span])]
-makeAssocList prop = mapMaybe makePair . groupBy ((==) `on` prop)
+makeAssocList :: (Eq a, Ord a) => (Span -> a) -> [Span] -> [(a, [Span])]
+makeAssocList prop = mapMaybe makePair . groupBy ((==) `on` prop) . sortBy (compare `on` prop)
     where
         makePair spans@(s:_) = Just (prop s,spans)
         makePair _ = Nothing
