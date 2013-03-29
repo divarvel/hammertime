@@ -9,7 +9,7 @@ Tests and cabal flags
 For this project we use the standard hunit/quickcheck tests.
 If you want to submit a new feature, please try to integrate at least *some* tests.
 
-You can remove the `-Werror` flag for development, but please remind that this flag will appear in the release, so we won't be able to ship your feature if there are warnings.
+You can remove the `-Werror` flag for development, but please remind that this flag will appear in the release, so we won't be able to ship your feature if there are warnings --- the pull requests being automatically built and tested by travis-ci.
 
 Code style
 ----------
