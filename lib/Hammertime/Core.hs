@@ -1,14 +1,16 @@
 
 module Hammertime.Core (
     computeTimes
+  , getDiffTime
   , getTotalTime
   , getProjectTime
   , getActivityTime
+  , makeCurrentSpan
   , readFilteredEvents
 ) where
 
 import Control.Monad.Writer
-import Data.Time.Clock (diffUTCTime, NominalDiffTime)
+import Data.Time.Clock (UTCTime(..), diffUTCTime, NominalDiffTime)
 
 import Hammertime.Types
 import Hammertime.Storage
@@ -65,3 +67,12 @@ readFilteredEvents tr p a t = do
         nameFilter = maybe id filterByActivityName a
         tagFilter = maybe id filterByActivityTag t
 
+makeCurrentSpan :: MonadStorage m
+                => UTCTime
+                -> m (Maybe Span)
+makeCurrentSpan now = do
+    lastStart <- readLastStart
+    return $ makeSpan lastStart
+    where
+        makeSpan (Just (Start a b)) = Just $ Span a b now
+        makeSpan _ = Nothing
