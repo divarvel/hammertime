@@ -16,7 +16,7 @@ cabal-version:       >=1.8
 
 Library
   Ghc-Options:    -Wall
-  Hs-Source-Dirs: src
+  Hs-Source-Dirs: lib
   build-depends:
     base,
     text,
@@ -24,18 +24,24 @@ Library
     cmdargs,
     xdg-basedir,
     directory,
+    transformers,
     mtl
   Exposed-Modules:
     Hammertime.Core
     Hammertime.Storage
     Hammertime.Storage.File
     Hammertime.Types
+    Hammertime.Reports
+  Other-Modules:
+    Hammertime.Reports.Current
+    Hammertime.Reports.Simple
+    Hammertime.Reports.TotalTime
 
 Executable hammertime
   Ghc-Options:    -Wall
-  main-is:             Hammertime/Main.hs
+  main-is:             Main.hs
   hs-source-dirs:      src
-  -- other-modules:       
+  -- other-modules:
   build-depends:
     base,
     text,
@@ -43,6 +49,7 @@ Executable hammertime
     cmdargs,
     xdg-basedir,
     directory,
+    transformers,
     mtl,
     hammertime
 

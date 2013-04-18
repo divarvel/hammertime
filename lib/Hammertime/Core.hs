@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeFamilies #-}
 
 module Hammertime.Core (
     computeTimes
@@ -52,13 +53,14 @@ filterByActivityTag t = filterByActivity (elem t . tags)
 
 
 readFilteredEvents :: MonadStorage m
-                   => TimeRange
+                   => Config
+                   -> TimeRange
                    -> Maybe Project
                    -> Maybe Name
                    -> Maybe Tag
                    -> m [Span]
-readFilteredEvents tr p a t = do
-    es <- loadEvents (Just tr)
+readFilteredEvents cfg tr p a t = do
+    es <- loadEvents cfg (Just tr)
     return $ mainFilter es
     where
         mainFilter = activityFilter . computeTimes
@@ -68,10 +70,11 @@ readFilteredEvents tr p a t = do
         tagFilter = maybe id filterByActivityTag t
 
 makeCurrentSpan :: MonadStorage m
-                => UTCTime
+                => Config
+                -> UTCTime
                 -> m (Maybe Span)
-makeCurrentSpan now = do
-    lastStart <- readLastStart
+makeCurrentSpan cfg now = do
+    lastStart <- readLastStart cfg
     return $ makeSpan lastStart
     where
         makeSpan (Just (Start a b)) = Just $ Span a b now
