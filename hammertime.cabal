@@ -29,6 +29,11 @@ Library
     Hammertime.Core
     Hammertime.Storage
     Hammertime.Types
+    Hammertime.Reports
+  Other-Modules:
+    Hammertime.Reports.Current
+    Hammertime.Reports.Simple
+    Hammertime.Reports.TotalTime
 
 Executable hammertime
   Ghc-Options:    -Wall
