@@ -24,7 +24,8 @@ Library
     cmdargs,
     xdg-basedir,
     directory,
-    mtl
+    mtl,
+    optparse-applicative
   Exposed-Modules:
     Hammertime.Core
     Hammertime.Storage
@@ -44,11 +45,12 @@ Executable hammertime
     xdg-basedir,
     directory,
     mtl,
+    optparse-applicative,
     hammertime
 
 test-suite hunit
   type: exitcode-stdio-1.0
-  main-is: hunit.hs
+  main-is: TestSuite.hs
   hs-source-dirs: tests
   build-depends:
     base,
@@ -56,3 +58,6 @@ test-suite hunit
     HUnit >= 1.2,
     test-framework       >= 0.6,
     test-framework-hunit >= 0.2
+  Other-modules:
+    Hammertime.CLI.Tests
+    Hammertime.Core.Tests
