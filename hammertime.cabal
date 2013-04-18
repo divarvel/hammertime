@@ -24,10 +24,12 @@ Library
     cmdargs,
     xdg-basedir,
     directory,
+    transformers,
     mtl
   Exposed-Modules:
     Hammertime.Core
     Hammertime.Storage
+    Hammertime.Storage.File
     Hammertime.Types
     Hammertime.Reports
   Other-Modules:
@@ -39,7 +41,7 @@ Executable hammertime
   Ghc-Options:    -Wall
   main-is:             Main.hs
   hs-source-dirs:      src
-  -- other-modules:       
+  -- other-modules:
   build-depends:
     base,
     text,
@@ -47,6 +49,7 @@ Executable hammertime
     cmdargs,
     xdg-basedir,
     directory,
+    transformers,
     mtl,
     hammertime
 

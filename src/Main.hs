@@ -1,11 +1,14 @@
 
 module Main where
 
+import Control.Monad
+import Control.Monad.IO.Class
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import Data.Time.Clock (UTCTime(..), getCurrentTime)
 import Data.Time.Calendar (addDays)
 import Data.Version (showVersion)
+import System.Environment.XDG.BaseDir (getUserDataDir, getUserDataFile)
 
 import Paths_hammertime
 
@@ -15,14 +18,21 @@ import Hammertime.Storage
 import qualified Hammertime.Storage.File as Store
 import qualified Hammertime.Types as Types
 
+eventFile, dataDir :: IO FilePath
+eventFile =  getUserDataFile "hammertime" "events"
+dataDir = getUserDataDir "hammertime"
 
-processAction :: UTCTime -> Action -> IO ()
-processAction now (Start p n ts) = Store.runStorage $ appendEvent $ Types.Start (Types.Activity (T.pack p) (T.pack n) (map T.pack ts)) now
-processAction now (Stop) = Store.runStorage $ appendEvent $ Types.Stop now
-processAction now (Report s p n t t') = TIO.putStr =<< Store.runStorage ( generateReport t' (timeSpanToRange s now) (fmap T.pack p) (fmap T.pack n) (fmap T.pack t) )
-processAction now (Current) = TIO.putStr =<< Store.runStorage ( currentActivity now )
-processAction _ (Help) = putStr showHelp
-processAction _ (Version) = putStrLn $ "Hammertime v" ++ showVersion version
+processAction :: MonadStorage m => Config -> UTCTime -> Action -> m ()
+processAction cfg now (Start p n ts) = appendEvent cfg $ Types.Start (Types.Activity (T.pack p) (T.pack n) (map T.pack ts)) now
+processAction cfg now (Stop) =  appendEvent cfg $ Types.Stop now
+processAction cfg now (Report s p n t t') = do
+    report <- generateReport cfg t' (timeSpanToRange s now) (fmap T.pack p) (fmap T.pack n) (fmap T.pack t)
+    liftIO $ TIO.putStr report
+processAction cfg now (Current) = do
+    current <- currentActivity cfg now
+    liftIO $ TIO.putStr current
+processAction _ _ (Help) = liftIO $ putStr showHelp
+processAction _ _ (Version) = liftIO $ putStrLn $ "Hammertime v" ++ showVersion version
 
 
 timeSpanToRange :: Types.TimeSpan -> UTCTime -> Types.TimeRange
@@ -32,7 +42,8 @@ timeSpanToRange Types.Month now@(UTCTime day dt) = (UTCTime (addDays (-30) day) 
 
 main :: IO ()
 main = do
-    Store.runStorage initStorage
+    cfg <- liftM2 Store.Config dataDir eventFile
+    Store.runStorage $ initStorage cfg
     now <- getCurrentTime
     act <- getAction
-    processAction now act
+    Store.runStorage $ processAction cfg now act
