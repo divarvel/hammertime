@@ -38,7 +38,7 @@ tests = testGroup "Hakyll.Core.Util.String.Tests"
             testGroup "report with type"
             [
                 testCase "simple" $ testReportType ("simple", Simple),
-                testCase "total" $ testReportType ("total", TotalTime)
+                testCase "total" $ testReportType ("totaltime", TotalTime)
             ]
         ],
         testCase "current" testCurrent
@@ -56,7 +56,7 @@ runCliParser = execParserPure (prefs idm) cliParserInfo
 testStart =
     let result = runCliParser ["start", "project", "activity"]
     in case result of
-        Left (ParserFailure _ _) -> assertFailure "parse fail: start"
+        Left (ParserFailure m _) -> assertFailure "parse fail: start"
         Right a -> a @=? Start "project" "activity" []
 
 testStartWithTags =
@@ -88,7 +88,7 @@ testStop =
 testReport =
     let result = runCliParser ["report"]
     in case result of
-        Left (ParserFailure _ _) -> assertFailure "parse fail: report"
+        Left (ParserFailure m _) -> assertFailure "parse fail: report"
         Right a -> a @=? (Report Day Nothing Nothing Nothing Simple)
 
 testReportSpan (string, span) =
@@ -98,25 +98,25 @@ testReportSpan (string, span) =
         Right a -> a @=? (Report span Nothing Nothing Nothing Simple)
 
 testReportFilterProject =
-    let result = runCliParser ["report", "--project", "project"]
+    let result = runCliParser ["report", "day", "--project", "project"]
     in case result of
         Left (ParserFailure _ _) -> assertFailure "parse fail: report"
         Right a -> a @=? (Report Day (Just "project") Nothing Nothing Simple)
 
 testReportFilterActivity =
-    let result = runCliParser ["report", "--activity", "activity"]
+    let result = runCliParser ["report", "day", "--activity", "activity"]
     in case result of
         Left (ParserFailure _ _) -> assertFailure "parse fail: report"
         Right a -> a @=? (Report Day Nothing (Just "activity") Nothing Simple)
 
 testReportFilterTag =
-    let result = runCliParser ["report", "--tags", "tag"]
+    let result = runCliParser ["report", "day", "--tag", "tag"]
     in case result of
         Left (ParserFailure _ _) -> assertFailure "parse fail: report"
         Right a -> a @=? (Report Day Nothing Nothing (Just "tag") Simple)
 
 testReportType (string, reportType) =
-    let result = runCliParser ["report", "-t", string]
+    let result = runCliParser ["report", "day", "-t", string]
     in case result of
         Left (ParserFailure _ _) -> assertFailure "parse fail: report"
         Right a -> a @=? (Report Day Nothing Nothing Nothing reportType)

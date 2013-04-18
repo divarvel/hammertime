@@ -30,10 +30,9 @@ defaultReport :: Action
 defaultReport = Report Types.Day Nothing Nothing Nothing Types.Simple
 
 
-parseArgument :: (Bounded a, Enum a, Show a) => String -> Either String a
-parseArgument string = maybe (Left $ "Accepted values: " ++ p values) Right matching
+parseArgument :: (Bounded a, Enum a, Show a) => String -> Maybe a
+parseArgument string = matching
     where
-        p = intercalate " | " . map show
         matching = find (match string . show) values
         match s s' = map toLower s == map toLower s'
         values = [minBound..maxBound]
@@ -44,15 +43,77 @@ cliParserInfo = info  (helper <*> cliParser) fullDesc
 cliParser :: Parser Action
 cliParser = subparser
      ( command "start"
-        (info (pure $ Start "" "" [])
-              (progDesc "Start a new activity"))
+        (info startParser
+              (progDesc "Start a new activity" <> fullDesc))
     <> command "stop"
         (info (pure Stop)
-              (progDesc "Stop current activity"))
+              (progDesc "Stop current activity" <> fullDesc))
     <> command "report"
-        (info (pure defaultReport)
-              (progDesc "Generate report for a given time span (default: day)"))
+        (info (helper <*> reportParser)
+              (progDesc "Generate report for a given time span (default: day)" <> fullDesc))
     <> command "current"
         (info (pure Current)
-              (progDesc "Display current activity"))
+              (progDesc "Display current activity" <> fullDesc))
      )
+
+startParser :: Parser Action
+startParser =
+    Start <$>
+        argument str ( metavar "PROJECT" ) <*>
+        argument str ( metavar "ACTIVITY" ) <*>
+        arguments str (metavar "TAGS")
+
+reportParser :: Parser Action
+reportParser =
+    Report <$>
+        spanParser <*>
+        projectFilterParser <*>
+        activityFilterParser <*>
+        tagFilterParser <*>
+        reportTypeParser
+
+spanReader :: Monad m => String -> m Types.TimeSpan
+spanReader arg = maybe (fail "cannot parse value") return $ parseArgument arg
+
+spanParser :: Parser Types.TimeSpan
+spanParser =
+    argument parseArgument
+        ( metavar "month|week|day"
+       <> reader spanReader
+       <> value Types.Day)
+
+mStrReader = reader $ fmap Just . str
+
+projectFilterParser :: Parser (Maybe String)
+projectFilterParser = option
+    ( long "project"
+   <> short 'p'
+   <> mStrReader
+   <> value Nothing
+   <> metavar "PROJECT"
+   <> help "Filter by project")
+
+activityFilterParser :: Parser (Maybe String)
+activityFilterParser = option
+    ( long "activity"
+   <> short 'a'
+   <> mStrReader
+   <> value Nothing
+   <> metavar "ACTIVITY"
+   <> help "Filter by activity")
+
+tagFilterParser :: Parser (Maybe String)
+tagFilterParser = option
+    ( long "tag"
+   <> mStrReader
+   <> value Nothing
+   <> metavar "TAG"
+   <> help "Filter by tag")
+
+reportTypeParser :: Parser Types.ReportType
+reportTypeParser = option
+    ( long "type"
+   <> short 't'
+   <> value Types.Simple
+   <> metavar "SIMPLE|TOTALTIME"
+   <> help "Report Type (default: simple)")
