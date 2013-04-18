@@ -5,9 +5,10 @@ import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import Data.Time.Clock (UTCTime(..), getCurrentTime)
 import Data.Time.Calendar (addDays)
-import Data.Version (showVersion)
+-- import Data.Version (showVersion)
+import Options.Applicative
 
-import Paths_hammertime
+-- import Paths_hammertime
 
 import Hammertime.CLI
 import Hammertime.Reports
@@ -21,8 +22,6 @@ processAction now (Start p n ts) = Store.runStorage $ appendEvent $ Types.Start 
 processAction now (Stop) = Store.runStorage $ appendEvent $ Types.Stop now
 processAction now (Report s p n t t') = TIO.putStr =<< Store.runStorage ( generateReport t' (timeSpanToRange s now) (fmap T.pack p) (fmap T.pack n) (fmap T.pack t) )
 processAction now (Current) = TIO.putStr =<< Store.runStorage ( currentActivity now )
-processAction _ (Help) = putStr showHelp
-processAction _ (Version) = putStrLn $ "Hammertime v" ++ showVersion version
 
 
 timeSpanToRange :: Types.TimeSpan -> UTCTime -> Types.TimeRange
@@ -34,5 +33,4 @@ main :: IO ()
 main = do
     Store.runStorage initStorage
     now <- getCurrentTime
-    act <- getAction
-    processAction now act
+    execParser cliParserInfo >>= processAction now
