@@ -28,6 +28,7 @@ Library
     optparse-applicative
   Exposed-Modules:
     Hammertime.Core
+    Hammertime.CLI
     Hammertime.Storage
     Hammertime.Storage.File
     Hammertime.Types
@@ -54,6 +55,7 @@ test-suite hunit
   hs-source-dirs: tests
   build-depends:
     base,
+    optparse-applicative,
     hammertime,
     HUnit >= 1.2,
     test-framework       >= 0.6,
