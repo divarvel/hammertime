@@ -10,7 +10,7 @@ import Hammertime.CLI (cliParserInfo, Action(..))
 import Hammertime.Types (TimeSpan(..), ReportType(..))
 
 tests :: Test
-tests = testGroup "Hakyll.Core.Util.String.Tests"
+tests = testGroup "Hammertime.CLI.Tests"
     [
         testGroup "Start"
         [
