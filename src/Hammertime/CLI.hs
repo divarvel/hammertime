@@ -26,16 +26,18 @@ data Action = Start { project :: String
             deriving (Eq, Show)
 
 
-defaultReport :: Action
-defaultReport = Report Types.Day Nothing Nothing Nothing Types.Simple
-
-
-parseArgument :: (Bounded a, Enum a, Show a) => String -> Maybe a
-parseArgument string = matching
+parseKeyword :: (Bounded a, Enum a, Show a) => String -> (Either ParseError a)
+parseKeyword string = maybe (Left helpText) Right $ matching
     where
         matching = find (match string . show) values
         match s s' = map toLower s == map toLower s'
         values = [minBound..maxBound]
+        helpText = ErrorMsg $ "Possible values: " ++ (intercalate "|" . map show $ values)
+
+argumentBuilder :: (Bounded a, Enum a, Show a) => String -> Maybe a
+argumentBuilder string = case parseKeyword string of
+    Left _ -> Nothing
+    Right a -> Just a
 
 cliParserInfo :: ParserInfo Action
 cliParserInfo = info  (helper <*> cliParser) fullDesc
@@ -72,23 +74,20 @@ reportParser =
         tagFilterParser <*>
         reportTypeParser
 
-spanReader :: Monad m => String -> m Types.TimeSpan
-spanReader arg = maybe (fail "cannot parse value") return $ parseArgument arg
-
 spanParser :: Parser Types.TimeSpan
 spanParser =
-    argument parseArgument
+    argument argumentBuilder
         ( metavar "month|week|day"
-       <> reader spanReader
        <> value Types.Day)
 
-mStrReader = reader $ fmap Just . str
+mStr :: String -> Either ParseError (Maybe String)
+mStr = fmap Just . str
 
 projectFilterParser :: Parser (Maybe String)
 projectFilterParser = option
     ( long "project"
    <> short 'p'
-   <> mStrReader
+   <> reader mStr
    <> value Nothing
    <> metavar "PROJECT"
    <> help "Filter by project")
@@ -97,7 +96,7 @@ activityFilterParser :: Parser (Maybe String)
 activityFilterParser = option
     ( long "activity"
    <> short 'a'
-   <> mStrReader
+   <> reader mStr
    <> value Nothing
    <> metavar "ACTIVITY"
    <> help "Filter by activity")
@@ -105,7 +104,7 @@ activityFilterParser = option
 tagFilterParser :: Parser (Maybe String)
 tagFilterParser = option
     ( long "tag"
-   <> mStrReader
+   <> reader mStr
    <> value Nothing
    <> metavar "TAG"
    <> help "Filter by tag")
@@ -114,6 +113,7 @@ reportTypeParser :: Parser Types.ReportType
 reportTypeParser = option
     ( long "type"
    <> short 't'
+   <> reader parseKeyword
    <> value Types.Simple
    <> metavar "SIMPLE|TOTALTIME"
    <> help "Report Type (default: simple)")

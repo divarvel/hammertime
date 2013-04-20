@@ -98,25 +98,25 @@ testReportSpan (string, span) =
         Right a -> a @=? (Report span Nothing Nothing Nothing Simple)
 
 testReportFilterProject =
-    let result = runCliParser ["report", "day", "--project", "project"]
+    let result = runCliParser ["report", "--project", "project"]
     in case result of
         Left (ParserFailure _ _) -> assertFailure "parse fail: report"
         Right a -> a @=? (Report Day (Just "project") Nothing Nothing Simple)
 
 testReportFilterActivity =
-    let result = runCliParser ["report", "day", "--activity", "activity"]
+    let result = runCliParser ["report", "--activity", "activity"]
     in case result of
         Left (ParserFailure _ _) -> assertFailure "parse fail: report"
         Right a -> a @=? (Report Day Nothing (Just "activity") Nothing Simple)
 
 testReportFilterTag =
-    let result = runCliParser ["report", "day", "--tag", "tag"]
+    let result = runCliParser ["report", "--tag", "tag"]
     in case result of
         Left (ParserFailure _ _) -> assertFailure "parse fail: report"
         Right a -> a @=? (Report Day Nothing Nothing (Just "tag") Simple)
 
 testReportType (string, reportType) =
-    let result = runCliParser ["report", "day", "-t", string]
+    let result = runCliParser ["report", "-t", string]
     in case result of
         Left (ParserFailure _ _) -> assertFailure "parse fail: report"
         Right a -> a @=? (Report Day Nothing Nothing Nothing reportType)
