@@ -33,4 +33,4 @@ main :: IO ()
 main = do
     Store.runStorage initStorage
     now <- getCurrentTime
-    execParser cliParserInfo >>= processAction now
+    customExecParser cliParserPrefs cliParserInfo >>= processAction now

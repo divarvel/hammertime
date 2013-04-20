@@ -2,12 +2,14 @@
 module Hammertime.CLI (
       Action(..)
     , cliParserInfo
+    , cliParserPrefs
     ) where
 
 
 import Data.Char (toLower)
 import Data.List (find, intercalate)
 import Options.Applicative
+import Options.Applicative.Types
 
 import qualified Hammertime.Types as Types
 
@@ -39,8 +41,16 @@ argumentBuilder string = case parseKeyword string of
     Left _ -> Nothing
     Right a -> Just a
 
+cliParserPrefs :: ParserPrefs
+cliParserPrefs = prefs showHelpOnError
+
 cliParserInfo :: ParserInfo Action
-cliParserInfo = info  (helper <*> cliParser) fullDesc
+cliParserInfo = info
+    ( helper
+  <*> cliParser)
+    ( fullDesc
+   <> header "Hammertime -- Lightweight time tracker"
+    )
 
 cliParser :: Parser Action
 cliParser = subparser
@@ -78,6 +88,7 @@ spanParser :: Parser Types.TimeSpan
 spanParser =
     argument argumentBuilder
         ( metavar "month|week|day"
+       <> completeWith ["month","week","day"]
        <> value Types.Day)
 
 mStr :: String -> Either ParseError (Maybe String)
@@ -115,5 +126,6 @@ reportTypeParser = option
    <> short 't'
    <> reader parseKeyword
    <> value Types.Simple
+   <> completeWith ["simple", "totaltime"]
    <> metavar "SIMPLE|TOTALTIME"
    <> help "Report Type (default: simple)")

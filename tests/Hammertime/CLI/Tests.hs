@@ -6,7 +6,7 @@ import Test.HUnit hiding (test, Test)
 
 import Options.Applicative
 
-import Hammertime.CLI (cliParserInfo, Action(..))
+import Hammertime.CLI (cliParserInfo, cliParserPrefs, Action(..))
 import Hammertime.Types (TimeSpan(..), ReportType(..))
 
 tests :: Test
@@ -46,7 +46,7 @@ tests = testGroup "Hammertime.CLI.Tests"
 
 
 runCliParser :: [String] -> Either ParserFailure Action
-runCliParser = execParserPure (prefs idm) cliParserInfo
+runCliParser = execParserPure cliParserPrefs cliParserInfo
 
 
 --------------------------------------------------------------------------------
