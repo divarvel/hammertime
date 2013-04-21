@@ -7,10 +7,8 @@ import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import Data.Time.Clock (UTCTime(..), getCurrentTime)
 import Data.Time.Calendar (addDays)
-import Data.Version (showVersion)
+import Options.Applicative
 import System.Environment.XDG.BaseDir (getUserDataDir, getUserDataFile)
-
-import Paths_hammertime
 
 import Hammertime.CLI
 import Hammertime.Reports
@@ -22,17 +20,15 @@ eventFile, dataDir :: IO FilePath
 eventFile =  getUserDataFile "hammertime" "events"
 dataDir = getUserDataDir "hammertime"
 
-processAction :: MonadStorage m => Config -> UTCTime -> Action -> m ()
+processAction :: MonadStorage m => Config ->  UTCTime -> Action -> m ()
 processAction cfg now (Start p n ts) = appendEvent cfg $ Types.Start (Types.Activity (T.pack p) (T.pack n) (map T.pack ts)) now
-processAction cfg now (Stop) =  appendEvent cfg $ Types.Stop now
+processAction cfg now (Stop) = appendEvent cfg $ Types.Stop now
 processAction cfg now (Report s p n t t') = do
     report <- generateReport cfg t' (timeSpanToRange s now) (fmap T.pack p) (fmap T.pack n) (fmap T.pack t)
     liftIO $ TIO.putStr report
 processAction cfg now (Current) = do
     current <- currentActivity cfg now
     liftIO $ TIO.putStr current
-processAction _ _ (Help) = liftIO $ putStr showHelp
-processAction _ _ (Version) = liftIO $ putStrLn $ "Hammertime v" ++ showVersion version
 
 
 timeSpanToRange :: Types.TimeSpan -> UTCTime -> Types.TimeRange
@@ -45,5 +41,5 @@ main = do
     cfg <- liftM2 Store.Config dataDir eventFile
     Store.runStorage $ initStorage cfg
     now <- getCurrentTime
-    act <- getAction
+    act <- customExecParser cliParserPrefs cliParserInfo
     Store.runStorage $ processAction cfg now act

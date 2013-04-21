@@ -1,22 +1,20 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Main where
+module Hammertime.Core.Tests (tests) where
 
 import Control.Monad (unless)
 
 import Test.Framework.Providers.HUnit
 import Test.Framework
-import Test.HUnit hiding (test)
+import Test.HUnit hiding (test, Test)
 
 import Hammertime.Core
 import Hammertime.Storage
 import Hammertime.Storage.File
 import Hammertime.Types
 
-main :: IO ()
-main = defaultMain tests
-
-tests = [
+tests :: Test
+tests = testGroup "Hammertime.Core.Tests" [
         testGroup "Parsing events" [
             testCase "Simple start" testParseSimpleStart,
             testCase "Simple start - project" testParseSimpleStartProject,
