@@ -1,14 +1,15 @@
 
 module Hammertime.CLI (
-      getAction
-    , showHelp
-    , Action(..)
+      Action(..)
+    , cliParserInfo
+    , cliParserPrefs
     ) where
 
 
 import Data.Char (toLower)
 import Data.List (find, intercalate)
-import System.Console.CmdArgs.Explicit
+import Options.Applicative
+import Options.Applicative.Types
 
 import qualified Hammertime.Types as Types
 
@@ -24,89 +25,107 @@ data Action = Start { project :: String
                       , type_ :: Types.ReportType
                       }
             | Current
-            | Help
-            | Version
-            deriving (Show)
+            deriving (Eq, Show)
 
 
-defaultReport :: Action
-defaultReport = Report Types.Day Nothing Nothing Nothing Types.Simple
-
-
-parseArgument :: (Bounded a, Enum a, Show a) => String -> Either String a
-parseArgument string = maybe (Left $ "Accepted values: " ++ p values) Right matching
+parseKeyword :: (Bounded a, Enum a, Show a) => String -> (Either ParseError a)
+parseKeyword string = maybe (Left helpText) Right $ matching
     where
-        p = intercalate " | " . map show
         matching = find (match string . show) values
         match s s' = map toLower s == map toLower s'
         values = [minBound..maxBound]
+        helpText = ErrorMsg $ "Possible values: " ++ (intercalate "|" . map show $ values)
 
-startMode :: Mode Action
-startMode =
-    let m = mode "start" (Start "" "" []) "Start a new activity" dummyArg  []
-    in m { modeArgs = ([
-        flagArg setProject "PROJECT",
-        flagArg setActivity "ACTIVITY"
-    ], Just (flagArg addTag "[TAGS]")) }
+argumentBuilder :: (Bounded a, Enum a, Show a) => String -> Maybe a
+argumentBuilder string = case parseKeyword string of
+    Left _ -> Nothing
+    Right a -> Just a
 
-stopMode :: Mode Action
-stopMode =
-    let m = mode "stop" Stop "Stop current activity" dummyArg []
-    in m { modeArgs = ([], Nothing) }
+cliParserPrefs :: ParserPrefs
+cliParserPrefs = prefs showHelpOnError
 
-currentMode :: Mode Action
-currentMode =
-    let m = mode "current" Current "Display current activity" dummyArg []
-    in m { modeArgs = ([], Nothing) }
+cliParserInfo :: ParserInfo Action
+cliParserInfo = info
+    ( helper
+  <*> cliParser)
+    ( fullDesc
+   <> header "Hammertime -- Lightweight time tracker"
+    )
 
-reportMode :: Mode Action
-reportMode = mode "report" defaultReport  "Generate report for a given time span (default: day)" (flagArg setTimeSpan "month|week|day") [
-        flagReq ["project", "p"] setProjectFilter "PROJECT" "Filter by project",
-        flagReq ["activity", "a"] setActivityFilter "ACTIVITY" "Filter by activity",
-        flagReq ["tags"] setTagsFilter "TAGS" "Filter by tag",
-        flagReq ["type", "t"] setReportType "SIMPLE|TOTAL" "Report Type (default: simple)"
-    ]
+cliParser :: Parser Action
+cliParser = subparser
+     ( command "start"
+        (info startParser
+              (progDesc "Start a new activity" <> fullDesc))
+    <> command "stop"
+        (info (pure Stop)
+              (progDesc "Stop current activity" <> fullDesc))
+    <> command "report"
+        (info (helper <*> reportParser)
+              (progDesc "Generate report for a given time span (default: day)" <> fullDesc))
+    <> command "current"
+        (info (pure Current)
+              (progDesc "Display current activity" <> fullDesc))
+     )
 
-hammertimeModes :: Mode Action
-hammertimeModes =
-    let m = (modes "hammertime" Current "Lightweight time tracker" [startMode, stopMode, reportMode, currentMode])
-        addHelpTag m' = m' { modeGroupFlags = toGroup [flagHelpSimple $ const Help, flagVersion $ const Version] }
-    in addHelpTag m
+startParser :: Parser Action
+startParser =
+    Start <$>
+        argument str ( metavar "PROJECT" ) <*>
+        argument str ( metavar "ACTIVITY" ) <*>
+        arguments str (metavar "TAGS")
 
+reportParser :: Parser Action
+reportParser =
+    Report <$>
+        spanParser <*>
+        projectFilterParser <*>
+        activityFilterParser <*>
+        tagFilterParser <*>
+        reportTypeParser
 
-dummyArg :: Arg a
-dummyArg = flagArg (\_ _ -> Left "") ""
+spanParser :: Parser Types.TimeSpan
+spanParser =
+    argument argumentBuilder
+        ( metavar "month|week|day"
+       <> completeWith ["month","week","day"]
+       <> value Types.Day)
 
-setProject :: Update Action
-setProject p s = Right $ s { project = p }
+mStr :: String -> Either ParseError (Maybe String)
+mStr = fmap Just . str
 
-setActivity :: Update Action
-setActivity a s = Right $ s { name = a }
+projectFilterParser :: Parser (Maybe String)
+projectFilterParser = option
+    ( long "project"
+   <> short 'p'
+   <> reader mStr
+   <> value Nothing
+   <> metavar "PROJECT"
+   <> help "Filter by project")
 
-addTag :: Update Action
-addTag t s = Right $ s { tags = tags s ++ [t] }
+activityFilterParser :: Parser (Maybe String)
+activityFilterParser = option
+    ( long "activity"
+   <> short 'a'
+   <> reader mStr
+   <> value Nothing
+   <> metavar "ACTIVITY"
+   <> help "Filter by activity")
 
-setProjectFilter :: Update Action
-setProjectFilter p r = Right $ r { project_ = Just p }
+tagFilterParser :: Parser (Maybe String)
+tagFilterParser = option
+    ( long "tag"
+   <> reader mStr
+   <> value Nothing
+   <> metavar "TAG"
+   <> help "Filter by tag")
 
-setActivityFilter :: Update Action
-setActivityFilter a r = Right $ r { name_ = Just a }
-
-setTagsFilter :: Update Action
-setTagsFilter t r = Right $ r { tag_ = Just t }
-
-setReportType :: Update Action
-setReportType v r = fmap setType (parseArgument v)
-    where
-        setType reportType = r { type_ = reportType }
-
-setTimeSpan :: Update Action
-setTimeSpan q r = fmap setSpan (parseArgument q)
-    where
-        setSpan s = r { span_ = s }
-
-getAction :: IO Action
-getAction = processArgs hammertimeModes
-
-showHelp :: String
-showHelp = show $ helpText [] HelpFormatDefault hammertimeModes
+reportTypeParser :: Parser Types.ReportType
+reportTypeParser = option
+    ( long "type"
+   <> short 't'
+   <> reader parseKeyword
+   <> value Types.Simple
+   <> completeWith ["simple", "totaltime"]
+   <> metavar "SIMPLE|TOTALTIME"
+   <> help "Report Type (default: simple)")
