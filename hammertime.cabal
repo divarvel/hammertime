@@ -2,7 +2,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                hammertime
-version:             0.1.0.1
+version:             1.0.0.0
 synopsis:            Lightweight time tracker
 -- description:         
 license:             GPL-3
@@ -21,8 +21,6 @@ Library
     base,
     text,
     time,
-    cmdargs,
-    xdg-basedir,
     directory,
     transformers,
     mtl,
@@ -48,11 +46,9 @@ Executable hammertime
     base,
     text,
     time,
-    cmdargs,
     xdg-basedir,
     directory,
     transformers,
-    mtl,
     optparse-applicative,
     hammertime
 
