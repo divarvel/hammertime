@@ -1,19 +1,20 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Main where
+module Hammertime.Core.Tests (tests) where
 
 import Control.Monad (unless)
 
 import Test.Framework.Providers.HUnit
 import Test.Framework
-import Test.HUnit hiding (test)
-import Hammertime.Types
+import Test.HUnit hiding (test, Test)
+
 import Hammertime.Core
+import Hammertime.Storage
+import Hammertime.Storage.File
+import Hammertime.Types
 
-main :: IO ()
-main = defaultMain tests
-
-tests = [
+tests :: Test
+tests = testGroup "Hammertime.Core.Tests" [
         testGroup "Parsing events" [
             testCase "Simple start" testParseSimpleStart,
             testCase "Simple start - project" testParseSimpleStartProject,
@@ -33,10 +34,11 @@ tests = [
 --------------------------------------------------------------------------------
 -- Parsing tests
 
-s1 = "Start (Activity {project = \"hammertime\", name = \"test\", tags = [\"fu\", \"bar\"]}) 2012-10-31 02:52:15.084919 UTC"
+s1 = "Start {eventActivity = Activity {project = \"hammertime\", name = \"test\", tags = [\"fu\",\"bar\"]}, eventTime = 2012-10-31 02:52:15.084919 UTC}"
+
 ps1 = readEvent s1
 
-s2 = "Stop 2012-10-31 02:52:32.328453 UTC"
+s2 = "Stop {eventTime = 2012-10-31 02:52:32.328453 UTC}"
 ps2 = readEvent s2
 
 testParseSimpleStart =
