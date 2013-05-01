@@ -17,23 +17,41 @@ With cabal
 
 ## Usage
 
-Start tracking a task
+###Start tracking a task
 
     hammertime start project_name task_name [tags*]
 
 Starting a new task automatically closes the previous.
 
-Stop tracking a task
+###Stop tracking a task
 
     hammertime stop
 
-Visualize tasks
+###Visualize tasks
 
-    to be done
+Show current tasks
+
+    hammertime current
+
+Show all tasks done today
+
+    hammertime report day
+
+Show all tasks of a particular project done this month
+
+    hammertime report month --project=<project name>
+
+Show the time spent on a particular activity, this week
+
+    hammertime report week --activity=<activity name> --type=totaltime
+
+To see all the available options
+
+    hammertime report --help
 
 ## Roadmap
 
-* More Tests
-* Create text reports
+* Polish the existing reports
+* Use a templating engine to ease the creation of reports
 * Create SVG reports
-* Use more robust data structures
+* Create CSV reports
