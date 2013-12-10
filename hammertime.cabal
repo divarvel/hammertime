@@ -61,9 +61,8 @@ test-suite hunit
     base,
     optparse-applicative,
     hammertime,
-    HUnit >= 1.2,
-    test-framework       >= 0.6,
-    test-framework-hunit >= 0.2
+    tasty      >= 0.4,
+    tasty-hunit >= 0.4
   Other-modules:
     Hammertime.CLI.Tests
     Hammertime.Core.Tests

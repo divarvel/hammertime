@@ -1,15 +1,14 @@
 module Hammertime.CLI.Tests (tests) where
 
-import Test.Framework.Providers.HUnit
-import Test.Framework
-import Test.HUnit hiding (test, Test)
+import Test.Tasty
+import Test.Tasty.HUnit
 
 import Options.Applicative
 
 import Hammertime.CLI (cliParserInfo, cliParserPrefs, Action(..))
 import Hammertime.Types (TimeSpan(..), ReportType(..))
 
-tests :: Test
+tests :: TestTree
 tests = testGroup "Hammertime.CLI.Tests"
     [
         testGroup "Start"

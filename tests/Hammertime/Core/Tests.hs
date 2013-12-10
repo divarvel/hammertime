@@ -4,16 +4,15 @@ module Hammertime.Core.Tests (tests) where
 
 import Control.Monad (unless)
 
-import Test.Framework.Providers.HUnit
-import Test.Framework
-import Test.HUnit hiding (test, Test)
+import Test.Tasty
+import Test.Tasty.HUnit
 
 import Hammertime.Core
 import Hammertime.Storage
 import Hammertime.Storage.File
 import Hammertime.Types
 
-tests :: Test
+tests :: TestTree
 tests = testGroup "Hammertime.Core.Tests" [
         testGroup "Parsing events" [
             testCase "Simple start" testParseSimpleStart,
