@@ -28,8 +28,8 @@ data Action = Start { project :: String
             deriving (Eq, Show)
 
 
-parseKeyword :: (Bounded a, Enum a, Show a) => String -> (Either ParseError a)
-parseKeyword string = maybe (Left helpText) Right $ matching
+parseKeyword :: (Bounded a, Enum a, Show a) => String -> ReadM a
+parseKeyword string = ReadM $ maybe (Left helpText) Right $ matching
     where
         matching = find (match string . show) values
         match s s' = map toLower s == map toLower s'
@@ -37,7 +37,7 @@ parseKeyword string = maybe (Left helpText) Right $ matching
         helpText = ErrorMsg $ "Possible values: " ++ (intercalate "|" . map show $ values)
 
 argumentBuilder :: (Bounded a, Enum a, Show a) => String -> Maybe a
-argumentBuilder string = case parseKeyword string of
+argumentBuilder string = case runReadM (parseKeyword string) of
     Left _ -> Nothing
     Right a -> Just a
 
@@ -91,8 +91,8 @@ spanParser =
        <> completeWith ["month","week","day"]
        <> value Types.Day)
 
-mStr :: String -> Either ParseError (Maybe String)
-mStr = fmap Just . str
+mStr :: String -> ReadM (Maybe String)
+mStr = ReadM . fmap Just . str
 
 projectFilterParser :: Parser (Maybe String)
 projectFilterParser = option
