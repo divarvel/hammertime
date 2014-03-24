@@ -1,4 +1,5 @@
-
+{-| Module for Hammertime CLI.
+ -}
 module Main where
 
 import Control.Monad
@@ -16,10 +17,13 @@ import Hammertime.Storage
 import qualified Hammertime.Storage.File as Store
 import qualified Hammertime.Types as Types
 
+-- | Locations of the data file, based on the XDG spec (by default,
+-- ~/.local/share/hammertime/events)
 eventFile, dataDir :: IO FilePath
 eventFile =  getUserDataFile "hammertime" "events"
 dataDir = getUserDataDir "hammertime"
 
+-- | Execute actions based on the parsed arguments
 processAction :: MonadStorage m => Config ->  UTCTime -> Action -> m ()
 processAction cfg now (Start p n ts) = appendEvent cfg $ Types.Start (Types.Activity (T.pack p) (T.pack n) (map T.pack ts)) now
 processAction cfg now (Stop) = appendEvent cfg $ Types.Stop now
@@ -30,12 +34,14 @@ processAction cfg now (Current) = do
     current <- currentActivity cfg now
     liftIO $ TIO.putStr current
 
-
+-- | Convert the time span given in the CLI to a time range, based on the
+-- current time
 timeSpanToRange :: Types.TimeSpan -> UTCTime -> Types.TimeRange
 timeSpanToRange Types.Day now@(UTCTime day dt) = (UTCTime (addDays (-1) day) dt, now)
 timeSpanToRange Types.Week now@(UTCTime day dt) = (UTCTime (addDays (-7) day) dt, now)
 timeSpanToRange Types.Month now@(UTCTime day dt) = (UTCTime (addDays (-30) day) dt, now)
 
+-- | Entry point
 main :: IO ()
 main = do
     cfg <- liftM2 Store.Config dataDir eventFile

@@ -1,4 +1,5 @@
-
+{-| Module dedicated to the parsing of CLI arguments
+-}
 module Hammertime.CLI (
       Action(..)
     , cliParserInfo
@@ -13,6 +14,7 @@ import Options.Applicative.Types
 
 import qualified Hammertime.Types as Types
 
+-- | Data type representing the action specified by the user
 data Action = Start { project :: String
                     , name :: String
                     , tags :: [String]
@@ -28,6 +30,7 @@ data Action = Start { project :: String
             deriving (Eq, Show)
 
 
+-- | Try to parse a string into a keyword
 parseKeyword :: (Bounded a, Enum a, Show a) => String -> ReadM a
 parseKeyword string = ReadM $ maybe (Left helpText) Right $ matching
     where
@@ -36,14 +39,17 @@ parseKeyword string = ReadM $ maybe (Left helpText) Right $ matching
         values = [minBound..maxBound]
         helpText = ErrorMsg $ "Possible values: " ++ (intercalate "|" . map show $ values)
 
+-- | Build an argument reading a keyword
 argumentBuilder :: (Bounded a, Enum a, Show a) => String -> Maybe a
 argumentBuilder string = case runReadM (parseKeyword string) of
     Left _ -> Nothing
     Right a -> Just a
 
+-- | Preferences for the CLI parser
 cliParserPrefs :: ParserPrefs
 cliParserPrefs = prefs showHelpOnError
 
+-- | Information describing hammertime
 cliParserInfo :: ParserInfo Action
 cliParserInfo = info
     ( helper
@@ -52,6 +58,7 @@ cliParserInfo = info
    <> header "Hammertime -- Lightweight time tracker"
     )
 
+-- | Main parser
 cliParser :: Parser Action
 cliParser = subparser
      ( command "start"
@@ -68,6 +75,7 @@ cliParser = subparser
               (progDesc "Display current activity" <> fullDesc))
      )
 
+-- | Parser for the start action
 startParser :: Parser Action
 startParser =
     Start <$>
@@ -75,6 +83,7 @@ startParser =
         argument str ( metavar "ACTIVITY" ) <*>
         arguments str (metavar "TAGS")
 
+-- | Parser for the report action
 reportParser :: Parser Action
 reportParser =
     Report <$>
@@ -84,6 +93,7 @@ reportParser =
         tagFilterParser <*>
         reportTypeParser
 
+-- | Parser for a time span
 spanParser :: Parser Types.TimeSpan
 spanParser =
     argument argumentBuilder
@@ -91,9 +101,11 @@ spanParser =
        <> completeWith ["month","week","day"]
        <> value Types.Day)
 
+-- | Parser for an optional string
 mStr :: String -> ReadM (Maybe String)
 mStr = ReadM . fmap Just . str
 
+-- | Parser for an optional filter on the project
 projectFilterParser :: Parser (Maybe String)
 projectFilterParser = option
     ( long "project"
@@ -103,6 +115,7 @@ projectFilterParser = option
    <> metavar "PROJECT"
    <> help "Filter by project")
 
+-- | Parser for an optional filter on the activity
 activityFilterParser :: Parser (Maybe String)
 activityFilterParser = option
     ( long "activity"
@@ -112,6 +125,7 @@ activityFilterParser = option
    <> metavar "ACTIVITY"
    <> help "Filter by activity")
 
+-- | Parser for an optional filter on the tag
 tagFilterParser :: Parser (Maybe String)
 tagFilterParser = option
     ( long "tag"
@@ -120,6 +134,7 @@ tagFilterParser = option
    <> metavar "TAG"
    <> help "Filter by tag")
 
+-- | Parser for the report type
 reportTypeParser :: Parser Types.ReportType
 reportTypeParser = option
     ( long "type"
