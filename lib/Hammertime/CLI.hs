@@ -73,7 +73,7 @@ startParser =
     Start <$>
         argument str ( metavar "PROJECT" ) <*>
         argument str ( metavar "ACTIVITY" ) <*>
-        arguments str (metavar "TAGS")
+        many (argument str (metavar "TAGS"))
 
 reportParser :: Parser Action
 reportParser =
@@ -95,36 +95,32 @@ mStr :: String -> ReadM (Maybe String)
 mStr = ReadM . fmap Just . str
 
 projectFilterParser :: Parser (Maybe String)
-projectFilterParser = option
+projectFilterParser = option mStr
     ( long "project"
    <> short 'p'
-   <> reader mStr
    <> value Nothing
    <> metavar "PROJECT"
    <> help "Filter by project")
 
 activityFilterParser :: Parser (Maybe String)
-activityFilterParser = option
+activityFilterParser = option mStr
     ( long "activity"
    <> short 'a'
-   <> reader mStr
    <> value Nothing
    <> metavar "ACTIVITY"
    <> help "Filter by activity")
 
 tagFilterParser :: Parser (Maybe String)
-tagFilterParser = option
+tagFilterParser = option mStr
     ( long "tag"
-   <> reader mStr
    <> value Nothing
    <> metavar "TAG"
    <> help "Filter by tag")
 
 reportTypeParser :: Parser Types.ReportType
-reportTypeParser = option
+reportTypeParser = option parseKeyword
     ( long "type"
    <> short 't'
-   <> reader parseKeyword
    <> value Types.Simple
    <> completeWith ["simple", "totaltime"]
    <> metavar "SIMPLE|TOTALTIME"
