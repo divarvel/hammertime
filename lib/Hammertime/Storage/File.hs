@@ -7,13 +7,14 @@ module Hammertime.Storage.File  where
 import qualified Data.Text as T
 --import Data.List
 import Control.Monad.IO.Class
+import Control.Applicative
 import Data.Maybe (mapMaybe, listToMaybe)
 import System.Directory (createDirectoryIfMissing)
 
 import Hammertime.Storage
 import Hammertime.Types
 
-newtype FileStorage a = FileStorage { runStorage :: IO a } deriving (Monad, MonadIO)
+newtype FileStorage a = FileStorage { runStorage :: IO a } deriving (Functor, Applicative, Monad, MonadIO)
 
 
 instance MonadStorage FileStorage where
